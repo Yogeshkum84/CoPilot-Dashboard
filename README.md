@@ -104,8 +104,8 @@ Or download `Copilot_Adoption_Dashboard_v6.html` directly from [Releases](https:
 
 ```
 No. | Name              | Email                        | Role                           | Group / Department  | Comments
-1   | Adrian Talbot     | Adrian.Talbot@company.com    | Director of Investor Relations | Finance             | L50
-2   | Sarah Patel       | Sarah.Patel@company.com      | Chief People Officer           | HR & People         | L50
+1   | Yogesh Kumar      | Yogesh.Kumar@company.com     | Director                       | Finance             | 
+
 ```
 
 > See [EXPORT_GUIDE.md](EXPORT_GUIDE.md) for full field descriptions, export navigation steps, and troubleshooting tips.
