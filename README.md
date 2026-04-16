@@ -197,9 +197,9 @@ This tool is free, open source, and built in personal time. If it saves your tea
 
 <div align="center">
 
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20this%20project-f59e0b?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/yogeshkum84)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20this%20project-f59e0b?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://monzo.me/yogeshkumar36?h=_Ye7K0)
 
-[![GitHub Sponsor](https://img.shields.io/badge/GitHub%20Sponsors-Sponsor%20on%20GitHub-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Yogeshkum84)
+[![GitHub Sponsor](https://img.shields.io/badge/GitHub%20Sponsors-Sponsor%20on%20GitHub-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://monzo.me/yogeshkumar36?h=_Ye7K0)
 <img width="247" height="241" alt="image" src="https://github.com/user-attachments/assets/a4e89ac1-41e7-4c31-95f4-95c88c654d11" />
 
 
