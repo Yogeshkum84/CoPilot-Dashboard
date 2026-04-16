@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>M365 Copilot Adoption Dashboard v6</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f0f2f5;--s0:#ffffff;--s1:#ffffff;--s2:#f8f9fb;--s3:#eef0f4;
+  --b1:rgba(0,0,0,.07);--b2:rgba(0,0,0,.12);--b3:rgba(0,0,0,.2);
+  --tx:#111827;--mu:#6b7280;--mu2:#9ca3af;
+  --bl:#0f6cbd;--bl2:#1a8cff;--bl3:#cce3f8;
+  --vi:#7b2fbe;--vi2:#9d4edd;--vi3:#e9d5ff;
+  --gn:#107c10;--gn2:#27ae60;--gn3:#d4edda;
+  --am:#835b00;--am2:#e8a000;--am3:#fff3cd;
+  --rd:#a4262c;--rd2:#d13438;--rd3:#fde7e9;
+  --tl:#006f6f;--tl2:#00b7c3;--tl3:#c7f5f7;
+  --or:#8f4e00;--or2:#e07a00;--or3:#fef0e0;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:8px;--rl:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--font);font-size:13px;overflow:hidden}
+
+/* UPLOAD */
+#upload{position:fixed;inset:0;background:linear-gradient(145deg,#f0f4ff,#faf0ff 50%,#f0f9ff);z-index:200;display:flex;align-items:center;justify-content:center;overflow-y:auto}
+.up-wrap{width:100%;max-width:820px;padding:24px 20px}
+.up-header{text-align:center;margin-bottom:28px}
+.up-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--vi2);background:var(--vi3);border:1px solid rgba(157,78,221,.2);padding:4px 12px;border-radius:20px;margin-bottom:14px}
+.up-title{font-size:28px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:6px}
+.up-title span{background:linear-gradient(135deg,var(--bl),var(--vi2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.up-sub{font-size:13px;color:var(--mu);line-height:1.65}
+.up-section{margin-bottom:18px}
+.up-sec-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin-bottom:8px;padding-left:2px}
+.slots-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.slots-1{display:grid;grid-template-columns:1fr;gap:10px}
+.slot{background:var(--s0);border:1.5px dashed var(--b2);border-radius:var(--rl);padding:16px 14px;cursor:pointer;transition:all .2s;position:relative;text-align:center;box-shadow:var(--shadow)}
+.slot:hover,.slot.dragover{border-color:var(--bl);background:#f0f7ff}
+.slot.loaded{border-color:var(--gn2);border-style:solid;background:var(--gn3)}
+.slot.loaded .slot-icon{color:var(--gn)}
+.slot input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.slot-icon{font-size:22px;margin-bottom:7px;display:block;color:var(--mu)}
+.slot-label{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--tx);margin-bottom:3px}
+.slot-desc{font-size:10px;color:var(--mu);line-height:1.5}
+.slot-status{font-family:var(--mono);font-size:9px;margin-top:5px;color:var(--gn);display:none}
+.slot.loaded .slot-status{display:block}
+.slot-viva{border-color:rgba(123,47,190,.25);background:linear-gradient(135deg,#fdf8ff,#f5f0ff)}
+.slot-viva:hover{border-color:var(--vi);background:#f0e8ff}
+.slot-viva.loaded{border-color:var(--vi2);background:var(--vi3)}
+.slot-viva .slot-status{color:var(--vi2)}
+.viva-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--vi2);background:var(--vi3);border:1px solid rgba(157,78,221,.25);padding:2px 8px;border-radius:10px;margin-bottom:8px}
+.join-info{background:linear-gradient(135deg,#f8f9ff,#fff8fe);border:1px solid rgba(107,114,128,.15);border-radius:var(--rl);padding:12px 16px;margin-bottom:14px;font-size:11px;color:var(--mu);line-height:1.7;box-shadow:var(--shadow)}
+.join-info strong{color:var(--tx);font-weight:600}
+.join-info code{font-family:var(--mono);font-size:10px;color:var(--bl);background:var(--bl3);padding:1px 5px;border-radius:3px}
+.up-actions{display:flex;gap:10px;justify-content:center;margin-top:16px}
+.btn-p{background:linear-gradient(135deg,var(--bl),var(--vi2));color:#fff;border:none;padding:11px 28px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .15s;box-shadow:0 2px 8px rgba(15,108,189,.3)}
+.btn-p:hover{opacity:.9;transform:translateY(-1px)}.btn-p:disabled{opacity:.4;cursor:default;transform:none}
+.btn-g{background:var(--s0);color:var(--mu);border:1.5px solid var(--b2);padding:11px 22px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s;box-shadow:var(--shadow)}
+.btn-g:hover{color:var(--tx);border-color:var(--b3)}
+.up-note{font-size:11px;color:var(--mu2);text-align:center;margin-top:10px;line-height:1.65}
+.up-note code{font-family:var(--mono);font-size:10px;color:var(--bl);background:var(--bl3);padding:1px 5px;border-radius:3px}
+#up-err{font-size:12px;color:var(--rd2);text-align:center;margin-top:8px;display:none;font-weight:500}
+
+/* SHELL */
+#shell{display:none;height:100vh}
+.shell{display:flex;height:100%}
+
+/* SIDEBAR */
+.sb{width:224px;flex-shrink:0;background:var(--s0);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.sb-brand{padding:16px 15px 12px;border-bottom:1px solid var(--b1);margin-bottom:4px}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.sb-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--bl),var(--vi2));display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;box-shadow:0 2px 6px rgba(15,108,189,.25)}
+.sb-name{font-size:13px;font-weight:800;color:var(--tx);letter-spacing:-.01em}
+.sb-files{display:flex;flex-direction:column;gap:3px}
+.sb-file{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--mu)}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--mu2);flex-shrink:0;transition:background .3s}
+.sb-dot.ok{background:var(--gn2)}.sb-dot.viva{background:var(--vi2)}
+.nav-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:4px}
+.nav-scroll::-webkit-scrollbar{width:3px}
+.nav-scroll::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.nav-grp{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mu2);padding:10px 15px 3px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 15px;cursor:pointer;font-size:12px;color:var(--mu);border-left:3px solid transparent;transition:all .12s;white-space:nowrap;user-select:none;border-radius:0 6px 6px 0;margin-right:6px}
+.nav-item:hover{color:var(--tx);background:var(--s2)}
+.nav-item.active{color:var(--bl);border-left-color:var(--bl);background:var(--bl3);font-weight:700}
+.nav-item.viva-nav.active{color:var(--vi2);border-left-color:var(--vi2);background:var(--vi3)}
+.nav-item .ni{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.nav-viva-tag{font-family:var(--mono);font-size:8px;color:var(--vi2);background:var(--vi3);border-radius:4px;padding:1px 5px;margin-left:auto;flex-shrink:0;font-weight:700}
+.sb-foot{padding:11px 15px;border-top:1px solid var(--b1);font-size:10px;color:var(--mu);line-height:1.9;flex-shrink:0}
+.sb-foot a{color:var(--bl);cursor:pointer;text-decoration:none;font-weight:600}
+.sb-foot a:hover{text-decoration:underline}
+
+/* TOPBAR */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:52px;flex-shrink:0;background:var(--s0);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:12px;box-shadow:var(--shadow)}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-h{font-size:14px;font-weight:800;color:var(--tx);letter-spacing:-.01em}
+.tb-p{font-size:11px;color:var(--mu);padding-left:10px;border-left:1.5px solid var(--b2)}
+.filters{display:flex;gap:6px;align-items:center}
+.fsel{font-size:11px;padding:5px 10px;border:1.5px solid var(--b2);border-radius:20px;color:var(--mu);background:var(--s2);font-family:var(--font);outline:none;cursor:pointer;transition:all .12s}
+.fsel:hover,.fsel:focus{border-color:var(--bl);color:var(--tx)}
+.srch-inp{font-size:11px;padding:5px 11px;border:1.5px solid var(--b2);border-radius:20px;background:var(--s2);color:var(--tx);font-family:var(--font);outline:none;width:180px;transition:border-color .15s}
+.srch-inp:focus{border-color:var(--bl)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:16px 18px 28px;background:var(--bg)}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.page{display:none}.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--s0);border:1px solid var(--b1);border-radius:var(--rl);padding:15px 17px;box-shadow:var(--shadow)}
+.ct{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-bottom:12px}
+.ct.vt{color:rgba(123,47,190,.7)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:13px}
+.mb{margin-bottom:13px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}
+.kpis.k3{grid-template-columns:repeat(3,1fr)}
+.kpis.k5{grid-template-columns:repeat(5,1fr)}
+.kpi{background:var(--s0);border:1px solid var(--b1);border-radius:var(--rl);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s}
+.kpi:hover{box-shadow:var(--shadow-md)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--bl))}
+.kpi.vk::before{background:linear-gradient(90deg,var(--vi),var(--vi2))}
+.kl{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mu)}
+.kv{font-size:26px;font-weight:800;color:var(--tx);margin:6px 0 4px;line-height:1;letter-spacing:-.02em;font-family:var(--mono)}
+.ks{font-size:10px;color:var(--mu2)}
+.ks.nu{color:var(--mu2)}
+
+/* SEGMENTS */
+.segs{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}
+.seg{border-radius:var(--rl);padding:14px 15px;border:1.5px solid transparent;cursor:pointer;transition:all .15s;box-shadow:var(--shadow)}
+.seg:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.seg-active  {background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:rgba(16,124,16,.25)}
+.seg-churned {background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:rgba(232,160,0,.3)}
+.seg-lost    {background:linear-gradient(135deg,#fff5f5,#fee2e2);border-color:rgba(209,52,56,.25)}
+.seg-never   {background:linear-gradient(135deg,#f9fafb,#f3f4f6);border-color:rgba(107,114,128,.2)}
+.seg:hover{filter:brightness(1.03)}
+.seg-icon{font-size:18px;margin-bottom:6px}
+.seg-ttl{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.seg-active .seg-ttl{color:var(--gn)}.seg-churned .seg-ttl{color:var(--am)}.seg-lost .seg-ttl{color:var(--rd2)}.seg-never .seg-ttl{color:var(--mu)}
+.seg-val{font-size:26px;font-weight:800;letter-spacing:-.02em;font-family:var(--mono)}
+.seg-active .seg-val{color:var(--gn)}.seg-churned .seg-val{color:var(--am)}.seg-lost .seg-val{color:var(--rd2)}.seg-never .seg-val{color:var(--mu)}
+.seg-pct{font-size:10px;color:var(--mu);margin-top:2px}
+.seg-def{font-size:9px;color:var(--mu2);margin-top:5px;line-height:1.5}
+
+/* BARS */
+.bl{display:flex;flex-direction:column;gap:8px}
+.br{display:flex;align-items:center;gap:8px}
+.blbl{font-size:11px;color:var(--mu);text-align:right;flex-shrink:0;width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blbl.w{width:160px}.blbl.s{width:70px}.blbl.xs{width:52px}
+.btr{flex:1;height:8px;background:var(--s3);border-radius:4px;overflow:hidden}
+.bfl{height:100%;border-radius:4px;transition:width .65s cubic-bezier(.4,0,.2,1)}
+.bvl{font-family:var(--mono);font-size:10px;color:var(--mu);width:46px;text-align:right;font-weight:500}
+
+/* TABLES */
+.tw{overflow:auto;border-radius:var(--r);border:1px solid var(--b1);box-shadow:var(--shadow)}
+.tw::-webkit-scrollbar{width:4px;height:4px}
+.tw::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--s2);padding:8px 12px;text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);border-bottom:1.5px solid var(--b2);position:sticky;top:0;z-index:1;white-space:nowrap;cursor:pointer;user-select:none}
+.tbl th:hover{color:var(--bl)}
+.tbl td{padding:7px 12px;border-bottom:1px solid var(--b1);vertical-align:middle;color:var(--tx)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--s2)}
+.upn-c{font-family:var(--mono);font-size:10px;color:var(--mu);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dn-c{font-weight:600;font-size:12px;color:var(--tx)}
+.mc{font-family:var(--mono);font-size:11px;color:var(--tx)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 8px;border-radius:12px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.b-active  {background:var(--gn3);color:var(--gn);border:1px solid rgba(16,124,16,.2)}
+.b-churned {background:var(--am3);color:var(--am);border:1px solid rgba(232,160,0,.25)}
+.b-lost    {background:var(--rd3);color:var(--rd2);border:1px solid rgba(209,52,56,.2)}
+.b-never   {background:var(--s3);color:var(--mu);border:1px solid var(--b2)}
+.b-champ   {background:linear-gradient(135deg,#fef9c3,#fef3c7);color:#a16207;border:1px solid rgba(234,179,8,.3)}
+.b-hi{background:var(--gn3);color:var(--gn);border:1px solid rgba(16,124,16,.2)}
+.b-med{background:var(--am3);color:var(--am);border:1px solid rgba(232,160,0,.25)}
+.b-lo{background:var(--rd3);color:var(--rd2);border:1px solid rgba(209,52,56,.2)}
+.b-viva{background:var(--vi3);color:var(--vi2);border:1px solid rgba(157,78,221,.2)}
+
+/* LAST ACTIVITY */
+.la{display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:6px;white-space:nowrap;font-weight:500}
+.la-hot{background:var(--gn3);color:var(--gn)}.la-warm{background:var(--am3);color:var(--am)}
+.la-cold{background:var(--rd3);color:var(--rd2)}.la-none{background:var(--s3);color:var(--mu2)}
+
+/* APP TILES */
+.app-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:13px}
+.app-tile{background:var(--s0);border:1.5px solid var(--b1);border-radius:var(--rl);padding:14px 12px;text-align:center;transition:all .15s;box-shadow:var(--shadow)}
+.app-tile:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.app-em{font-size:22px;margin-bottom:7px}
+.app-nm{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:5px}
+.app-v{font-size:20px;font-weight:800;font-family:var(--mono);color:var(--tx)}
+.app-p{font-size:9px;color:var(--mu);margin-top:2px}
+.app-sub{font-size:9px;margin-top:4px;font-family:var(--mono);color:var(--mu2)}
+.app-sub.hi{color:var(--bl);font-weight:600}
+
+/* MISC */
+.champ-banner{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:1.5px solid rgba(234,179,8,.3);border-radius:var(--rl);padding:14px 17px;margin-bottom:13px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.champ-body h3{font-size:14px;font-weight:800;color:var(--tx);margin-bottom:2px}
+.champ-body p{font-size:11px;color:var(--mu);line-height:1.5}
+.champ-count{margin-left:auto;text-align:right;flex-shrink:0}
+.champ-n{font-size:26px;font-weight:800;font-family:var(--mono);color:#a16207}
+.champ-lbl{font-size:10px;color:var(--mu)}
+.viva-banner{background:linear-gradient(135deg,#faf5ff,#f0f4ff);border:1.5px solid rgba(123,47,190,.2);border-radius:var(--rl);padding:11px 15px;margin-bottom:13px;display:flex;align-items:center;gap:11px;font-size:11px;color:var(--mu);box-shadow:var(--shadow)}
+.viva-banner strong{color:var(--vi2);font-weight:700}
+.arc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:13px}
+.arc-card{background:var(--s0);border:1px solid var(--b1);border-radius:var(--rl);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.arc-l{font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:10px}
+.arc-v{font-size:28px;font-weight:800;font-family:var(--mono);color:var(--tx)}
+.arc-s{font-size:10px;color:var(--mu2);margin-top:3px}
+.funnel{display:flex;overflow:hidden;border-radius:var(--r);min-height:64px;border:1px solid var(--b1);box-shadow:var(--shadow)}
+.f-seg{display:flex;flex-direction:column;justify-content:center;padding:12px 14px;border-right:1px solid rgba(0,0,0,.05)}
+.f-seg:last-child{border-right:none}
+.f-n{font-size:18px;font-weight:800;font-family:var(--mono)}
+.f-l{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-top:2px}
+.donut-wrap{display:flex;align-items:center;gap:16px}
+.donut-leg{flex:1;display:flex;flex-direction:column;gap:7px}
+.dleg{display:flex;align-items:center;gap:8px;font-size:11px}
+.ddot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dlbl{flex:1;color:var(--mu)}.dval{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--tx)}
+.ib{display:flex;align-items:center;gap:6px}
+.ib-t{width:64px;height:5px;background:var(--s3);border-radius:3px;overflow:hidden}
+.ib-f{height:100%;border-radius:3px}
+.ready-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:13px}
+.ready-tile{background:var(--s0);border:1px solid var(--b1);border-radius:var(--rl);padding:12px 10px;text-align:center;box-shadow:var(--shadow)}
+.ready-em{font-size:18px;margin-bottom:5px}
+.ready-nm{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mu);margin-bottom:4px}
+.ready-v{font-size:18px;font-weight:800;font-family:var(--mono);color:var(--tx)}
+.ready-p{font-size:9px;color:var(--mu);margin-top:2px}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.av-cell{display:flex;align-items:center;gap:8px}
+.empty{text-align:center;padding:32px 20px;color:var(--mu2);font-size:12px}
+.empty-ic{font-size:24px;margin-bottom:8px;opacity:.4}
+.leg{display:flex;gap:12px;margin-top:9px;flex-wrap:wrap}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mu)}
+.leg-sq{width:10px;height:6px;border-radius:2px}
+.search-row{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.srch-lbl{flex:1;font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mu)}
+.match-ok{color:var(--gn);font-family:var(--mono);font-size:10px;font-weight:600}
+.match-no{color:var(--mu2);font-family:var(--mono);font-size:10px}
+.chk{color:var(--gn);font-weight:700}.crs{color:var(--rd2);font-weight:700}
+
+/* VIP LIST */
+.slot-vip{border-color:rgba(183,110,0,.3);background:linear-gradient(135deg,#fffdf0,#fff8e1)}
+.slot-vip:hover{border-color:var(--am2);background:#fff3cd}
+.slot-vip.loaded{border-color:var(--am2);background:var(--am3)}
+.slot-vip .slot-status{color:var(--am)}
+.vip-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--am);background:var(--am3);border:1px solid rgba(232,160,0,.3);padding:2px 8px;border-radius:10px;margin-bottom:8px}
+.b-vip{background:linear-gradient(135deg,#fff8e1,#fef3c7);color:#a16207;border:1px solid rgba(183,110,0,.3)}
+.vip-crown{color:#a16207;font-size:11px}
+.vip-header-banner{background:linear-gradient(135deg,#fffbeb,#fef3c7,#fff8e1);border:1.5px solid rgba(183,110,0,.25);border-radius:var(--rl);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+.vip-header-banner h3{font-size:14px;font-weight:800;color:var(--tx);margin-bottom:2px}
+.vip-header-banner p{font-size:11px;color:var(--mu);line-height:1.5}
+.vip-stat{text-align:right;flex-shrink:0}
+.vip-stat-n{font-size:26px;font-weight:800;font-family:var(--mono);color:#a16207}
+.vip-stat-l{font-size:10px;color:var(--mu)}
+.vip-group-tag{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(183,110,0,.1);color:#a16207;border:1px solid rgba(183,110,0,.2);white-space:nowrap}
+.vip-nav-tag{font-family:var(--mono);font-size:8px;color:var(--am);background:var(--am3);border-radius:4px;padding:1px 5px;margin-left:auto;flex-shrink:0;font-weight:700}
+.nav-item.vip-nav.active{color:var(--am);border-left-color:var(--am2);background:var(--am3)}
+.licence-rec{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid rgba(15,108,189,.2);border-radius:var(--rl);padding:14px 16px;margin-bottom:13px}
+.licence-rec h4{font-size:12px;font-weight:700;color:var(--bl);margin-bottom:8px}
+.licence-rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lrec-card{background:var(--s0);border:1px solid var(--b1);border-radius:var(--r);padding:11px 13px;text-align:center;box-shadow:var(--shadow)}
+.lrec-n{font-size:22px;font-weight:800;font-family:var(--mono)}
+.lrec-l{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mu);margin-top:2px}
+.lrec-s{font-size:9px;color:var(--mu2);margin-top:3px;line-height:1.4}
+.lrec-recommend{font-size:10px;font-weight:700;margin-top:5px}
+.lrec-yes{color:var(--gn)}.lrec-no{color:var(--rd2)}.lrec-maybe{color:var(--am)}
+</style>
+</head>
+<body>
+
+<!-- UPLOAD SCREEN -->
+<div id="upload">
+<div class="up-wrap">
+  <div class="up-header">
+    <div class="up-eyebrow">&#129302; M365 Copilot Analytics</div>
+    <div class="up-title">Copilot <span>Adoption</span> Dashboard</div>
+    <div class="up-sub">Upload your Copilot Admin Centre CSV exports. Add Viva Insights for deep action and meeting analytics.</div>
+  </div>
+  <div class="up-section">
+    <div class="up-sec-label">Admin Centre Reports (admin.microsoft.com &rarr; Reports &rarr; Copilot)</div>
+    <div class="slots-3">
+      <div class="slot" id="slot-active"><input type="file" id="fi-active" accept=".csv,.txt" onchange="handleFile('active',this)"/>
+        <span class="slot-icon">&#128202;</span><div class="slot-label">Active User Report</div>
+        <div class="slot-desc">UPN &middot; Display Name &middot; Prompts &middot; Last activity per app (CopilotActivityUserDetailV4)</div>
+        <div class="slot-status" id="st-active"></div></div>
+      <div class="slot" id="slot-detail"><input type="file" id="fi-detail" accept=".csv,.txt" onchange="handleFile('detail',this)"/>
+        <span class="slot-icon">&#128100;</span><div class="slot-label">User Details</div>
+        <div class="slot-desc">User GUID &middot; Prompts &middot; Active usage days (CopilotEDPActivityUserDetailV3)</div>
+        <div class="slot-status" id="st-detail"></div></div>
+      <div class="slot" id="slot-ready"><input type="file" id="fi-ready" accept=".csv,.txt" onchange="handleFile('ready',this)"/>
+        <span class="slot-icon">&#9989;</span><div class="slot-label">Readiness Report</div>
+        <div class="slot-desc">Licence &middot; Update channel &middot; Teams &middot; Outlook (CopilotReadinessActivityUserDetail)</div>
+        <div class="slot-status" id="st-ready"></div></div>
+    </div>
+  </div>
+  <div class="up-section">
+    <div class="up-sec-label"><span class="viva-badge">+ Viva Insights</span> &nbsp;Unlocks: Copilot actions &middot; Meeting hours &middot; Feature heatmap &middot; Org breakdown</div>
+    <div class="join-info">
+      <strong>Viva join method:</strong> Your PersonId (<code>b136bcb1-86e6-3588-9035-e361c3bce346</code>) is the first 128 bits of SHA-256(UPN) formatted as a UUID. The dashboard computes this hash from your Admin Centre UPNs and matches automatically. MetricDate is parsed as <code>DD/MM/YYYY</code>.
+    </div>
+    <div class="slots-1">
+      <div class="slot slot-viva" id="slot-viva"><input type="file" id="fi-viva" accept=".csv,.txt" onchange="handleFile('viva',this)"/>
+        <span class="slot-icon">&#9889;</span><div class="slot-label">Viva Insights Export</div>
+        <div class="slot-desc">PersonId &middot; MetricDate (DD/MM/YYYY) &middot; 85 Copilot metric columns &middot; Organization (Copilot_dashboard_metric_...)</div>
+        <div class="slot-status" id="st-viva"></div></div>
+    </div>
+  </div>
+  <div class="up-section">
+    <div class="up-sec-label"><span class="vip-badge">&#11088; VIP List</span> &nbsp;Optional - upload your named user list for filtered analysis and licence planning</div>
+    <div class="slots-1">
+      <div class="slot slot-vip" id="slot-vip"><input type="file" id="fi-vip" accept=".csv,.txt,.xls,.xlsx" onchange="handleFile('vip',this)"/>
+        <span class="slot-icon">&#11088;</span><div class="slot-label">VIP / Named User List</div>
+        <div class="slot-desc">.xlsx Excel or .csv: No. &middot; Name &middot; <strong>Email</strong> &middot; Role &middot; Group / Department &middot; Comments &mdash; email column gives most reliable matching</div>
+        <div class="slot-status" id="st-vip"></div></div>
+    </div>
+  </div>
+  <div class="up-actions">
+    <button class="btn-p" id="btn-load" onclick="buildDashboard()" disabled>&#128640; Load Dashboard</button>
+    <button class="btn-g" onclick="loadSample()">&#127981; Use Sample Data</button>
+  </div>
+  <div id="up-err"></div>
+  <div class="up-note">All processing is local &mdash; no data leaves your browser. Supports tab-delimited and comma-delimited CSV with BOM.</div>
+</div>
+</div>
+
+<!-- APP SHELL -->
+<div id="shell">
+<div class="shell">
+  <aside class="sb">
+    <div class="sb-brand">
+      <div class="sb-logo"><div class="sb-icon">&#129302;</div><span class="sb-name">Copilot Analytics</span></div>
+      <div class="sb-files">
+        <div class="sb-file"><div class="sb-dot" id="dot-active"></div><span>Active User Report</span></div>
+        <div class="sb-file"><div class="sb-dot" id="dot-detail"></div><span>User Details (EDP)</span></div>
+        <div class="sb-file"><div class="sb-dot" id="dot-ready"></div><span>Readiness Report</span></div>
+        <div class="sb-file"><div class="sb-dot" id="dot-viva"></div><span>Viva (<span id="sb-match">-</span>% matched)</span></div>
+        <div class="sb-file"><div class="sb-dot" id="dot-vip"></div><span>VIP List (<span id="sb-vip-count">-</span> users)</span></div>
+      </div>
+    </div>
+    <div class="nav-scroll">
+    <div class="nav-grp">Overview</div>
+    <div class="nav-item active" onclick="nav('overview',this)"><span class="ni">&#128202;</span>Overview</div>
+    <div class="nav-item"        onclick="nav('consumption',this)"><span class="ni">&#128293;</span>Consumption</div>
+    <div class="nav-item"        onclick="nav('users',this)"><span class="ni">&#128101;</span>User Directory</div>
+    <div class="nav-grp">Usage &amp; Product</div>
+    <div class="nav-item"        onclick="nav('apps',this)"><span class="ni">&#128241;</span>App Adoption</div>
+    <div class="nav-item"        onclick="nav('prompts',this)"><span class="ni">&#128172;</span>Prompts</div>
+    <div class="nav-item viva-nav" onclick="nav('vivaact',this)"><span class="ni">&#9889;</span>Copilot Actions<span class="nav-viva-tag">Viva</span></div>
+    <div class="nav-item viva-nav" onclick="nav('heatmap',this)"><span class="ni">&#9648;</span>Product Heatmap<span class="nav-viva-tag">Viva</span></div>
+    <div class="nav-grp">Engagement</div>
+    <div class="nav-item viva-nav" onclick="nav('meetings',this)"><span class="ni">&#128197;</span>Meetings &amp; Teams<span class="nav-viva-tag">Viva</span></div>
+    <div class="nav-item"        onclick="nav('retention',this)"><span class="ni">&#128260;</span>Retention</div>
+    <div class="nav-item"        onclick="nav('champions',this)"><span class="ni">&#127942;</span>Champions</div>
+    <div class="nav-grp">Org &amp; Readiness</div>
+    <div class="nav-item"        onclick="nav('readiness',this)"><span class="ni">&#9989;</span>Readiness</div>
+    <div class="nav-item"        onclick="nav('org',this)"><span class="ni">&#127970;</span>Org Breakdown</div>
+    <div class="nav-grp">VIP Analysis</div>
+    <div class="nav-item vip-nav" onclick="nav('vip',this)"><span class="ni">&#11088;</span>VIP Users<span class="vip-nav-tag">Named</span></div>
+    </div><!-- /nav-scroll -->
+    <div class="sb-foot">
+      <span id="sb-meta">-</span><br/>Refresh: <span id="sb-refresh">-</span><br/>Period: <span id="sb-period">-</span><br/>
+      <a onclick="resetDash()">&#8617; Load new files</a>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-left">
+        <div class="tb-h" id="tb-h">Overview</div>
+        <div class="tb-p" id="tb-p">All users</div>
+      </div>
+      <div class="filters">
+        <select class="fsel" id="f-seg" onchange="applyFilters()">
+          <option value="">All Segments</option><option value="active">Active</option>
+          <option value="churned">Churned</option><option value="lost">Lost</option><option value="never">Never Active</option>
+        </select>
+        <input class="srch-inp" id="tb-search" placeholder="Search name or UPN..." style="width:200px" oninput="applyFilters()"/>
+      </div>
+    </div>
+    <div class="content">
+
+<!-- ═══ OVERVIEW ═══ -->
+<div class="page active" id="page-overview">
+  <div class="segs">
+    <div class="seg seg-active"  onclick="drillSeg('active')"><div class="seg-icon">&#9989;</div><div class="seg-ttl">Active Users</div><div class="seg-val" id="s-active">-</div><div class="seg-pct" id="sp-active">-</div><div class="seg-def">Used Copilot in last 30 days</div></div>
+    <div class="seg seg-churned" onclick="drillSeg('churned')"><div class="seg-icon">&#9888;&#65039;</div><div class="seg-ttl">Churned</div><div class="seg-val" id="s-churned">-</div><div class="seg-pct" id="sp-churned">-</div><div class="seg-def">Active 30-60 days ago, quiet now</div></div>
+    <div class="seg seg-lost"    onclick="drillSeg('lost')"><div class="seg-icon">&#128680;</div><div class="seg-ttl">Lost</div><div class="seg-val" id="s-lost">-</div><div class="seg-pct" id="sp-lost">-</div><div class="seg-def">No activity for 60+ days</div></div>
+    <div class="seg seg-never"   onclick="drillSeg('never')"><div class="seg-icon">&#128164;</div><div class="seg-ttl">Never Active</div><div class="seg-val" id="s-never">-</div><div class="seg-pct" id="sp-never">-</div><div class="seg-def">Licensed but zero prompts ever</div></div>
+  </div>
+  <div class="kpis">
+    <div class="kpi" style="--kc:var(--bl)"><div class="kl">Adoption Rate</div><div class="kv" id="ov-rate">-</div><div class="ks nu" id="ov-rate-s">active / licensed</div></div>
+    <div class="kpi" style="--kc:var(--gn2)"><div class="kl">Total Prompts</div><div class="kv" id="ov-prom">-</div><div class="ks nu">all apps combined</div></div>
+    <div class="kpi" style="--kc:var(--am2)"><div class="kl">Avg Prompts/User</div><div class="kv" id="ov-avg">-</div><div class="ks nu">per active user</div></div>
+    <div class="kpi vk"><div class="kl">Total Viva Actions</div><div class="kv" id="ov-act">-</div><div class="ks nu">all Copilot actions (Viva)</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Adoption funnel</div><div class="funnel" id="ov-funnel"></div><div class="leg" id="ov-leg"></div></div>
+    <div class="card"><div class="ct">Last activity recency - active users</div><div class="bl" id="ov-recency"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Prompt volume distribution</div><div class="bl" id="ov-dist"></div></div>
+    <div class="card"><div class="ct vt">Viva: top Copilot actions across all users</div><div class="bl" id="ov-viva-actions"></div></div>
+  </div>
+</div>
+
+<!-- ═══ CONSUMPTION ═══ -->
+<div class="page" id="page-consumption">
+  <div class="kpis">
+    <div class="kpi" style="--kc:var(--bl)"><div class="kl">Total Prompts</div><div class="kv" id="con-prom">-</div><div class="ks nu">all channels</div></div>
+    <div class="kpi" style="--kc:var(--vi2)"><div class="kl">Chat Work Prompts</div><div class="kv" id="con-work">-</div><div class="ks nu">Copilot Chat (work)</div></div>
+    <div class="kpi" style="--kc:var(--tl2)"><div class="kl">Chat Web Prompts</div><div class="kv" id="con-web">-</div><div class="ks nu">Copilot Chat (web)</div></div>
+    <div class="kpi vk"><div class="kl">Total Copilot Actions</div><div class="kv" id="con-act">-</div><div class="ks nu">Viva metric</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Prompt channel split</div>
+      <div class="donut-wrap">
+        <svg id="con-donut" width="110" height="110" viewBox="0 0 110 110" style="transform:rotate(-90deg)">
+          <circle cx="55" cy="55" r="40" fill="none" stroke="var(--s3)" stroke-width="18"/>
+          <circle id="cd-work" cx="55" cy="55" r="40" fill="none" stroke="var(--bl)" stroke-width="18" stroke-dasharray="0 251" stroke-dashoffset="-63" stroke-linecap="round"/>
+          <circle id="cd-web"  cx="55" cy="55" r="40" fill="none" stroke="var(--tl2)" stroke-width="18" stroke-dasharray="0 251" stroke-linecap="round"/>
+        </svg>
+        <div class="donut-leg" id="con-donut-leg"></div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">Top users by total consumption (prompts + Viva actions)</div><div class="bl" id="con-top-users"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Prompt volume buckets</div><div class="bl" id="con-buckets"></div></div>
+    <div class="card"><div class="ct vt">Viva: consumption by organisation</div><div class="bl" id="con-org-bars"></div></div>
+  </div>
+  <div class="card mb" style="padding:0;overflow:hidden">
+    <div style="padding:12px 15px 7px"><div class="ct" style="margin:0">Top 20 consumers - full detail</div></div>
+    <div class="tw" style="max-height:280px"><table class="tbl"><thead><tr>
+      <th>#</th><th>Display Name</th><th>UPN</th><th>Prompts</th><th>Chat Work</th><th>Chat Web</th><th>Active Days</th><th>Viva Actions</th><th>Apps Used</th><th>Last Active</th><th>Segment</th>
+    </tr></thead><tbody id="con-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ USER DIRECTORY ═══ -->
+<div class="page" id="page-users">
+  <div class="search-row">
+    <div class="srch-lbl">All users - real identities from Admin Centre</div>
+    <select class="fsel" id="u-seg" onchange="renderUsersTable()"><option value="">All Segments</option><option value="active">Active</option><option value="churned">Churned</option><option value="lost">Lost</option><option value="never">Never Active</option><option value="champion">Champions</option></select>
+    <input class="srch-inp" id="u-search" placeholder="Search name or UPN..." oninput="renderUsersTable()"/>
+  </div>
+  <div class="tw" style="max-height:400px"><table class="tbl"><thead><tr>
+    <th onclick="sortU('name')">Display Name</th><th onclick="sortU('upn')">UPN</th>
+    <th onclick="sortU('status')">Segment</th><th onclick="sortU('prompts')">Prompts</th>
+    <th onclick="sortU('days')">Active Days</th><th onclick="sortU('lastact')">Last Activity</th>
+    <th>Teams</th><th>Word</th><th>Excel</th><th>PPT</th><th>Outlook</th><th>OneNote</th>
+    <th onclick="sortU('vivaAct')">Viva Actions</th><th>Viva Match</th>
+  </tr></thead><tbody id="users-body"></tbody></table></div>
+  <div class="g2" style="margin-top:12px">
+    <div class="card"><div class="ct">Segment distribution</div><div class="bl" id="u-seg-dist"></div></div>
+    <div class="card"><div class="ct vt">Viva: avg active days per app (matched users)</div><div class="bl" id="u-viva-appdays"></div></div>
+  </div>
+</div>
+
+<!-- ═══ APP ADOPTION ═══ -->
+<div class="page" id="page-apps">
+  <div class="app-grid" id="app-tiles"></div>
+  <div class="g2">
+    <div class="card"><div class="ct">Active users per app (last-activity dates)</div><div class="bl" id="app-users-bars"></div></div>
+    <div class="card"><div class="ct vt">Viva: avg active days per app</div><div class="bl" id="app-viva-days"></div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Multi-app adoption - users active in N apps</div><div class="bl" id="app-multi-bars"></div></div>
+    <div class="card"><div class="ct">Last activity recency per app (median days since last use)</div><div class="bl" id="app-recency-bars"></div></div>
+  </div>
+</div>
+
+<!-- ═══ PROMPTS ═══ -->
+<div class="page" id="page-prompts">
+  <div class="kpis">
+    <div class="kpi" style="--kc:var(--gn2)"><div class="kl">Total Prompts</div><div class="kv" id="pr-total">-</div><div class="ks nu">all apps</div></div>
+    <div class="kpi" style="--kc:var(--bl)"><div class="kl">Copilot Chat Work</div><div class="kv" id="pr-work">-</div><div class="ks nu">work channel</div></div>
+    <div class="kpi" style="--kc:var(--tl2)"><div class="kl">Copilot Chat Web</div><div class="kv" id="pr-web">-</div><div class="ks nu">web channel</div></div>
+    <div class="kpi" style="--kc:var(--am2)"><div class="kl">Avg / Active User</div><div class="kv" id="pr-avg">-</div><div class="ks nu">report period</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Top 10 users by prompt volume</div><div class="bl" id="pr-top-users"></div></div>
+    <div class="card"><div class="ct">Prompt volume buckets</div><div class="bl" id="pr-buckets"></div></div>
+  </div>
+  <div class="card mb" style="padding:0;overflow:hidden">
+    <div style="padding:12px 15px 7px"><div class="ct" style="margin:0">Top 20 by total prompts</div></div>
+    <div class="tw" style="max-height:260px"><table class="tbl"><thead><tr><th>#</th><th>Name</th><th>UPN</th><th>Total Prompts</th><th>Chat (work)</th><th>Chat (web)</th><th>Active Days</th><th>Last Active</th></tr></thead><tbody id="pr-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ VIVA ACTIONS ═══ -->
+<div class="page" id="page-vivaact">
+  <div id="va-empty" class="empty" style="display:none"><div class="empty-ic">&#9889;</div>Load the Viva Insights export to see Copilot action breakdowns</div>
+  <div id="va-content" style="display:none">
+    <div class="kpis">
+      <div class="kpi vk"><div class="kl">Total Actions</div><div class="kv" id="va-total">-</div><div class="ks nu">all Copilot actions</div></div>
+      <div class="kpi vk"><div class="kl">Avg Actions/User</div><div class="kv" id="va-avg">-</div><div class="ks nu">Viva population</div></div>
+      <div class="kpi vk"><div class="kl">Meeting Recaps</div><div class="kv" id="va-recap">-</div><div class="ks nu">intelligent recap</div></div>
+      <div class="kpi vk"><div class="kl">Email Coaching</div><div class="kv" id="va-coach">-</div><div class="ks nu">email coaching actions</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct vt">Top actions taken - all Viva users</div><div class="bl" id="va-actions-bars"></div></div>
+      <div class="card"><div class="ct vt">Copilot actions by app</div><div class="bl" id="va-app-bars"></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct vt">Copilot enabled days by feature area</div><div class="bl" id="va-enabled-bars"></div></div>
+      <div class="card"><div class="ct vt">Returning user signals (28-day window)</div><div class="bl" id="va-returning-bars"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRODUCT HEATMAP ═══ -->
+<div class="page" id="page-heatmap">
+  <div id="hm-empty" class="empty" style="display:none"><div class="empty-ic">&#9648;</div>Load the Viva Insights export to see the product usage heatmap</div>
+  <div id="hm-content" style="display:none">
+    <div class="viva-banner"><span style="font-size:16px">&#9648;</span><div><strong>Product Usage Heatmap</strong> - Each row is a Copilot app, each column is an organisation. Cell intensity shows total actions. Darker blue = more activity.</div></div>
+    <div class="card mb"><div class="ct vt">Actions by app x organisation</div><div id="hm-grid" style="overflow-x:auto"></div></div>
+    <div class="g2">
+      <div class="card"><div class="ct vt">Total actions by product</div><div class="bl" id="hm-product-bars"></div></div>
+      <div class="card"><div class="ct vt">Top organisations by Copilot actions</div><div class="bl" id="hm-org-bars"></div></div>
+    </div>
+    <div class="card mb"><div class="ct vt">Feature action breakdown - which capabilities are used most</div><div class="bl" id="hm-action-bars"></div></div>
+  </div>
+</div>
+
+<!-- ═══ MEETINGS ═══ -->
+<div class="page" id="page-meetings">
+  <div id="mt-empty" class="empty" style="display:none"><div class="empty-ic">&#128197;</div>Load the Viva Insights export to see meeting and Teams data</div>
+  <div id="mt-content" style="display:none">
+    <div class="kpis">
+      <div class="kpi vk"><div class="kl">Hours Recapped</div><div class="kv" id="mt-hrs">-</div><div class="ks nu">total meeting hours</div></div>
+      <div class="kpi vk"><div class="kl">Meetings Recapped</div><div class="kv" id="mt-cnt">-</div><div class="ks nu">total meetings</div></div>
+      <div class="kpi vk"><div class="kl">Hrs Summarised</div><div class="kv" id="mt-sum">-</div><div class="ks nu">in Teams</div></div>
+      <div class="kpi vk"><div class="kl">Chat Summaries</div><div class="kv" id="mt-chat">-</div><div class="ks nu">Teams chat</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct vt">Meeting hours recapped by organisation</div><div class="bl" id="mt-org-bars"></div></div>
+      <div class="card"><div class="ct vt">Teams Copilot action breakdown</div><div class="bl" id="mt-teams-bars"></div></div>
+    </div>
+    <div class="card mb" style="padding:0;overflow:hidden">
+      <div style="padding:12px 15px 7px"><div class="ct" style="margin:0">Top users - Meetings and Teams Copilot (names shown where Viva matched)</div></div>
+      <div class="tw" style="max-height:240px"><table class="tbl"><thead><tr><th>Name / PersonId</th><th>Org (Viva)</th><th>Chat Summaries</th><th>Mtg Recaps</th><th>Hrs Recapped</th><th>Hrs Summarised</th><th>Compose</th></tr></thead><tbody id="mt-body"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RETENTION ═══ -->
+<div class="page" id="page-retention">
+  <div class="arc-grid">
+    <div class="arc-card"><div class="arc-l">Active last 7 days</div>
+      <svg width="130" height="72" viewBox="0 0 130 72" style="display:block;margin:0 auto 10px">
+        <path d="M10,68 A55,55 0 0,1 120,68" fill="none" stroke="var(--s3)" stroke-width="13" stroke-linecap="round"/>
+        <path id="arc7" d="M10,68 A55,55 0 0,1 120,68" fill="none" stroke="var(--bl)" stroke-width="13" stroke-dasharray="172" stroke-dashoffset="172" stroke-linecap="round" style="transition:stroke-dashoffset .8s ease"/>
+      </svg>
+      <div class="arc-v" id="ret7-v">-</div><div class="arc-s" id="ret7-s">users</div>
+    </div>
+    <div class="arc-card"><div class="arc-l">Active last 30 days</div>
+      <svg width="130" height="72" viewBox="0 0 130 72" style="display:block;margin:0 auto 10px">
+        <path d="M10,68 A55,55 0 0,1 120,68" fill="none" stroke="var(--s3)" stroke-width="13" stroke-linecap="round"/>
+        <path id="arc30" d="M10,68 A55,55 0 0,1 120,68" fill="none" stroke="var(--gn2)" stroke-width="13" stroke-dasharray="172" stroke-dashoffset="172" stroke-linecap="round" style="transition:stroke-dashoffset .8s ease"/>
+      </svg>
+      <div class="arc-v" id="ret30-v">-</div><div class="arc-s" id="ret30-s">users</div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Recency breakdown</div><div class="bl" id="ret-recency"></div></div>
+    <div class="card"><div class="ct vt">Viva: returning user signals (28-day)</div><div class="bl" id="ret-viva"></div></div>
+  </div>
+  <div class="card mb"><div class="ct">Churned users - at risk of becoming lost (30-60 days inactive)</div>
+    <div class="tw" style="max-height:220px"><table class="tbl"><thead><tr><th>Name</th><th>UPN</th><th>Last Active</th><th>Prompts</th><th>Days Inactive</th><th>Apps Used</th></tr></thead><tbody id="ret-churn-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ CHAMPIONS ═══ -->
+<div class="page" id="page-champions">
+  <div class="champ-banner">
+    <div style="font-size:28px">&#127942;</div>
+    <div class="champ-body"><h3>Copilot Champions</h3><p>Power users: 100+ prompts AND active in 3+ apps AND 10+ active days. Ideal for peer learning, showcase events, and adoption programmes.</p></div>
+    <div class="champ-count"><div class="champ-n" id="ch-n">-</div><div class="champ-lbl">champions identified</div></div>
+  </div>
+  <div class="kpis">
+    <div class="kpi" style="--kc:var(--am2)"><div class="kl">Avg Prompts</div><div class="kv" id="ch-prom">-</div><div class="ks nu">per champion</div></div>
+    <div class="kpi" style="--kc:var(--gn2)"><div class="kl">Avg Active Days</div><div class="kv" id="ch-days">-</div><div class="ks nu">per champion</div></div>
+    <div class="kpi" style="--kc:var(--bl)"><div class="kl">Avg Apps Used</div><div class="kv" id="ch-apps">-</div><div class="ks nu">per champion</div></div>
+    <div class="kpi vk"><div class="kl">Avg Viva Actions</div><div class="kv" id="ch-vact">-</div><div class="ks nu">Viva matched only</div></div>
+  </div>
+  <div class="card mb" style="padding:0;overflow:hidden">
+    <div style="padding:12px 15px 7px"><div class="ct" style="margin:0">Champion leaderboard - sorted by total engagement</div></div>
+    <div class="tw" style="max-height:360px"><table class="tbl"><thead><tr>
+      <th>#</th><th>Name</th><th>UPN</th><th>Prompts</th><th>Active Days</th><th>Apps</th><th>Viva Actions</th><th>Last Active</th><th>Org (Viva)</th>
+    </tr></thead><tbody id="ch-body"></tbody></table></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Champions by organisation</div><div class="bl" id="ch-org-bars"></div></div>
+    <div class="card"><div class="ct">Champion prompt intensity</div><div class="bl" id="ch-prom-bars"></div></div>
+  </div>
+</div>
+
+<!-- ═══ READINESS ═══ -->
+<div class="page" id="page-readiness">
+  <div class="kpis k5">
+    <div class="kpi" style="--kc:var(--bl)"><div class="kl">Has Licence</div><div class="kv" id="rd-lic">-</div><div class="ks nu">users licenced</div></div>
+    <div class="kpi" style="--kc:var(--gn2)"><div class="kl">Update Channel</div><div class="kv" id="rd-chan">-</div><div class="ks nu">eligible channel</div></div>
+    <div class="kpi" style="--kc:var(--tl2)"><div class="kl">Teams Ready</div><div class="kv" id="rd-teams">-</div><div class="ks nu">meetings + chat</div></div>
+    <div class="kpi" style="--kc:var(--vi2)"><div class="kl">Outlook</div><div class="kv" id="rd-ol">-</div><div class="ks nu">uses email</div></div>
+    <div class="kpi" style="--kc:var(--am2)"><div class="kl">Fully Ready</div><div class="kv" id="rd-full">-</div><div class="ks nu">all 5 signals</div></div>
+  </div>
+  <div class="ready-grid" id="rd-tiles"></div>
+  <div class="g2">
+    <div class="card"><div class="ct">Readiness signals - users meeting each criterion</div><div class="bl" id="rd-signals"></div></div>
+    <div class="card"><div class="ct">Readiness score distribution (0 to 5 signals)</div><div class="bl" id="rd-dist"></div></div>
+  </div>
+  <div class="card mb" style="padding:0;overflow:hidden">
+    <div style="padding:12px 15px 7px"><div class="ct" style="margin:0">Licenced users missing readiness signals</div></div>
+    <div class="tw" style="max-height:260px"><table class="tbl"><thead><tr><th>Name</th><th>UPN</th><th>Licence</th><th>Channel</th><th>Teams Mtg</th><th>Teams Chat</th><th>Outlook</th><th>Office Docs</th><th>Score</th></tr></thead><tbody id="rd-body"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══ ORG BREAKDOWN ═══ -->
+<div class="page" id="page-org">
+  <div class="g2">
+    <div class="card"><div class="ct">Active users by organisation</div><div class="bl" id="org-users-bars"></div></div>
+    <div class="card"><div class="ct">Total prompts by organisation</div><div class="bl" id="org-prom-bars"></div></div>
+  </div>
+  <div class="card mb" style="padding:0;overflow:hidden">
+    <div style="padding:12px 15px 7px"><div class="ct" style="margin:0">Organisation summary</div></div>
+    <div class="tw" style="max-height:300px"><table class="tbl"><thead><tr>
+      <th>Organisation</th><th>Users</th><th>Active</th><th>Churned</th><th>Never</th>
+      <th>Adoption %</th><th>Prompts</th><th>Avg Prompts</th><th>Viva Actions</th><th>Champions</th><th>Status</th>
+    </tr></thead><tbody id="org-body"></tbody></table></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ct">Segment mix by organisation</div><div class="bl" id="org-seg-bars"></div></div>
+    <div class="card"><div class="ct vt">Viva: Copilot actions by Organisation field</div><div class="bl" id="org-viva-bars"></div></div>
+  </div>
+</div>
+
+
+<!-- ═══ VIP USERS ═══ -->
+<div class="page" id="page-vip">
+  <div id="vip-empty" class="empty" style="display:none"><div class="empty-ic">&#11088;</div>Upload a VIP user list (Excel or CSV) on the upload screen to enable this page</div>
+  <div id="vip-content" style="display:none">
+
+    <!-- Header banner -->
+    <div class="vip-header-banner">
+      <div style="font-size:26px">&#11088;</div>
+      <div>
+        <h3>VIP / Named User Analysis</h3>
+        <p>Consumption and licence readiness for your named user list. Use this to plan licence allocation and identify who is getting value from Copilot.</p>
+      </div>
+      <div class="vip-stat"><div class="vip-stat-n" id="vip-n">-</div><div class="vip-stat-l">VIP users loaded</div></div>
+      <div class="vip-stat" style="margin-left:12px"><div class="vip-stat-n" id="vip-matched-n">-</div><div class="vip-stat-l">matched in data</div></div>
+    </div>
+
+    <!-- Match diagnostic -->
+    <div id="vip-match-diag"></div>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi" style="--kc:var(--am2)"><div class="kl">VIP Active</div><div class="kv" id="vip-active">-</div><div class="ks nu">used Copilot in 30 days</div></div>
+      <div class="kpi" style="--kc:var(--gn2)"><div class="kl">VIP Total Prompts</div><div class="kv" id="vip-prompts">-</div><div class="ks nu">group total</div></div>
+      <div class="kpi" style="--kc:var(--bl)"><div class="kl">VIP Avg Prompts</div><div class="kv" id="vip-avg">-</div><div class="ks nu">per VIP user</div></div>
+      <div class="kpi vk"><div class="kl">VIP Viva Actions</div><div class="kv" id="vip-vact">-</div><div class="ks nu">group total (Viva)</div></div>
+    </div>
+
+    <!-- Licence recommendation panel -->
+    <div class="licence-rec">
+      <h4>&#128203; Licence Planning Recommendation</h4>
+      <div class="licence-rec-grid">
+        <div class="lrec-card">
+          <div class="lrec-n" id="lr-active" style="color:var(--gn)">-</div>
+          <div class="lrec-l">Already Active</div>
+          <div class="lrec-s">Using Copilot actively - licence justified</div>
+          <div class="lrec-recommend lrec-yes">&#10003; Keep licence</div>
+        </div>
+        <div class="lrec-card">
+          <div class="lrec-n" id="lr-low" style="color:var(--am)">-</div>
+          <div class="lrec-l">Low Usage</div>
+          <div class="lrec-s">Has licence, under 10 prompts - needs onboarding</div>
+          <div class="lrec-recommend lrec-maybe">&#9888; Review needed</div>
+        </div>
+        <div class="lrec-card">
+          <div class="lrec-n" id="lr-none" style="color:var(--rd2)">-</div>
+          <div class="lrec-l">No Usage</div>
+          <div class="lrec-s">Never used or not yet licensed</div>
+          <div class="lrec-recommend lrec-no">&#10007; Assign / onboard</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group filter tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin-right:4px">Filter by Group:</div>
+      <button class="fsel" id="vip-grp-all" onclick="filterVipGroup('')" style="cursor:pointer;font-weight:700;background:var(--am3);border-color:var(--am2);color:var(--am)">All Groups</button>
+      <div id="vip-group-tabs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+
+    <!-- Per-user table -->
+    <div class="card mb" style="padding:0;overflow:hidden">
+      <div style="padding:12px 15px 7px;display:flex;align-items:center;justify-content:space-between">
+        <div class="ct" style="margin:0">VIP user consumption detail</div>
+        <div style="font-size:10px;color:var(--mu)">Matched by Display Name (case-insensitive)</div>
+      </div>
+      <div class="tw" style="max-height:360px"><table class="tbl"><thead><tr>
+        <th>No.</th><th>VIP Name</th><th>Email / UPN</th><th>Role</th><th>Group / Dept</th><th>Comments</th>
+        <th>Status</th><th>Prompts</th><th>Active Days</th><th>Last Active</th>
+        <th>Teams</th><th>Outlook</th><th>Word</th><th>Excel</th>
+        <th>Viva Actions</th><th>Licence Rec</th>
+      </tr></thead><tbody id="vip-body"></tbody></table></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="g2">
+      <div class="card"><div class="ct">VIP adoption status breakdown</div><div class="bl" id="vip-status-bars"></div></div>
+      <div class="card"><div class="ct">VIP prompt distribution</div><div class="bl" id="vip-prom-bars"></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ct">VIP active users by group / department</div><div class="bl" id="vip-group-bars"></div></div>
+      <div class="card"><div class="ct">VIP consumption vs overall average</div><div class="bl" id="vip-compare-bars"></div></div>
+    </div>
+
+    <!-- Unmatched VIP users -->
+    <div class="card mb" style="padding:0;overflow:hidden">
+      <div style="padding:12px 15px 7px"><div class="ct" style="margin:0;color:var(--rd2)">&#9888; VIP users not found in Copilot data (not licensed or name mismatch)</div></div>
+      <div class="tw" style="max-height:200px"><table class="tbl"><thead><tr>
+        <th>No.</th><th>VIP Name</th><th>Role</th><th>Group / Dept</th><th>Comments</th><th>Action Required</th>
+      </tr></thead><tbody id="vip-unmatched-body"></tbody></table></div>
+    </div>
+
+  </div>
+</div>
+
+    </div></div></div></div>
+<script>
+const A={refreshDate:'Report Refresh Date',upn:'User Principal Name',displayName:'Display Name',lastActivity:'Last Activity Date',period:'Report Period',promptsAll:'Prompts submitted for All Apps',promptsWork:'Prompts submitted for Copilot Chat (work)',promptsWeb:'Prompts submitted for Copilot Chat (web)',activeDays:'Active Usage Days for All Apps',lastChatWork:'Last activity date of Copilot Chat (work) (UTC)',lastChatWeb:'Last activity date of Copilot Chat (web) (UTC)',lastTeams:'Last activity date of Teams Copilot (UTC)',lastWord:'Last activity date of Word Copilot (UTC)',lastExcel:'Last activity date of Excel Copilot (UTC)',lastPPT:'Last activity date of PowerPoint Copilot (UTC)',lastOutlook:'Last activity date of Outlook Copilot (UTC)',lastOneNote:'Last activity date of OneNote Copilot (UTC)',lastLoop:'Last activity date of Loop Copilot (UTC)',lastM365App:'Last activity date of Microsoft 365 Copilot (app) (UTC)',lastEdge:'Last activity date of Edge (UTC)'};
+const D={refreshDate:'Report refresh date',guid:'User guid',upn:'User principal name',displayName:'Display name',period:'Report period',prompts:'Prompts submitted',activeDays:'Active usage days',lastActivity:'Last activity date',lastM365App:'Last activity date of Microsoft 365 Copilot (app) (UTC)',lastWord:'Last activity date of Word (UTC)',lastExcel:'Last activity date of Excel (UTC)',lastPPT:'Last activity date of PowerPoint (UTC)',lastOneNote:'Last activity date of OneNote (UTC)',lastEdge:'Last activity date of Edge (UTC)',lastTeams:'Last activity date of Teams (UTC)',lastOutlook:'Last activity date of Outlook (UTC)',lastCloud:'Last activity date of Copilot.cloud.microsoft (UTC)'};
+const R={refreshDate:'Report Refresh Date',upn:'User Principal Name',hasLicence:'Has Copilot license assigned',period:'Report Period',updateChan:'Uses eligible update channel',teamsMtg:'Uses Teams meetings',teamsChat:'Uses Teams chat',outlookEmail:'Uses Outlook email',officeDocs:'Uses Office docs'};
+const V={pid:'PersonId',date:'MetricDate',org:'Organization',totalAct:'Total Copilot actions taken',totalActiveDays:'Total Copilot active days',totalEnabledDays:'Total Copilot enabled days',totalMtgHrs:'Total Meeting hours summarized or recapped by Copilot',totalMtgSumOrRecap:'Total meetings summarized or recapped by Copilot',totalMtgSumTeams:'Total meetings summarized by Copilot in Teams',totalChatConvSum:'Total chat conversations summarized by Copilot in Teams',totalEmailsCopilot:'Total emails sent using Copilot in Outlook',daysWord:'Days of active Copilot usage in Word',daysExcel:'Days of active Copilot usage in Excel',daysPPT:'Days of active Copilot usage in Powerpoint',daysTeams:'Days of active Copilot usage in Teams',daysOutlook:'Days of active Copilot usage in Outlook',daysLoop:'Days of active Copilot usage in Loop',daysOnenote:'Days of active Copilot usage in OneNote',daysActiveChatWork:'Days of active Copilot chat (work) usage',daysActiveChatWeb:'Days of active Copilot Chat (web) usage',actWord:'Copilot actions taken in Word',actExcel:'Copilot actions taken in Excel',actPPT:'Copilot actions taken in Powerpoint',actTeams:'Copilot actions taken in Teams',actOutlook:'Copilot actions taken in Outlook',actCopilotChatWork:'Copilot actions taken in Copilot chat (work)',promptsWork:'Copilot chat (work) prompts submitted',promptsWorkOl:'Copilot Chat (work) prompts submitted in Outlook',promptsWorkTeams:'Copilot Chat (work) prompts submitted in Teams',promptsWorkWord:'Copilot Chat (work) in Word prompts submitted',promptsWorkExcel:'Copilot Chat (work) in Excel prompts submitted',promptsWorkPPT:'Copilot Chat (work) in PowerPoint prompts submitted',promptsWeb:'Copilot Chat (web) prompts submitted',promptsWebOl:'Copilot Chat (Web) prompts submitted in Outlook',promptsWebTeams:'Copilot Chat (Web) prompts submitted in Teams',promptsWebWord:'Copilot Chat (web) in Word prompts submitted',promptsWebExcel:'Copilot Chat (web) in Excel prompts submitted',promptsWebPPT:'Copilot Chat (web) in PowerPoint prompts submitted',chatExcel:'Chat (Copilot in Excel) prompts submitted',chatPPT:'Chat (Copilot in PowerPoint) prompts submitted',chatWord:'Chat (Copilot in Word) prompts submitted',chatEnabledDays:'Copilot chat (work) enabled days',enabledSearch:'Copilot enabled days for Intelligent Search',enabledProd:'Copilot enabled days for Productivity App',enabledTeams:'Copilot enabled days for Teams',enabledPowerPlatform:'Copilot enabled days for Power Platform connectors',actDraftWord:'Draft Word document actions taken using Copilot',actRewrite:'Rewrite text actions taken using Copilot in Word',actSumWord:'Summarize Word document actions taken using Copilot in Word',actVizTable:'Visualize as table actions taken using Copilot in Word',actSumEmail:'Summarize email thread actions taken using Copilot in Outlook',actGenEmail:'Generate email draft actions taken using Copilot in Outlook',actEmailCoach:'Email coaching actions taken using Copilot',actSumMtg:'Summarize meeting actions taken using Copilot in Teams',actSumChat:'Summarize chat actions taken using Copilot in Teams',actComposeTeams:'Compose chat message actions taken using Copilot in Teams',actRecap:'Intelligent recap actions taken',actSumPPT:'Summarize presentation actions taken using Copilot in PowerPoint',actAddPPT:'Add content to presentation actions taken',actCreatePPT:'Create presentation actions taken using Copilot',actXlAnalysis:'Excel analysis actions taken using Copilot',actXlFormula:'Create Excel formula actions taken using Copilot',actXlFormat:'Excel formatting actions taken using Copilot',mtgHrsRecap:'Meeting hours recapped by Copilot',mtgHrsSum:'Meeting hours summarized by Copilot in Teams',mtgRecapCnt:'Meetings recapped by Copilot',ret7:'Returning Microsoft 365 Copilot user (most recent and prior 7 days)',ret28:'Returning Microsoft 365 Copilot user (most recent and prior 28 days)',retChat7:'Returning Copilot Chat user (most recent and prior 7 days)',retChat28:'Returning Copilot Chat user (most recent and prior 28 days)',weeksM365:'Number of weeks active in Microsoft 365 Copilot (most recent 28 days)',weeksChat:'Number of weeks active in Copilot Chat (most recent 28 days)'};
+
+let FILES={active:null,detail:null,ready:null,viva:null,vip:null};
+let MERGED=[],FILTERED=[],VIVA_BY_PID={},UPN_TO_PID={},PID_TO_UPN={};
+let VIVA_LOADED=false,VIVA_TOTAL=0;
+let TODAY=new Date();
+let _uSort={col:'prompts',dir:'desc'};
+
+function parseCSV(text){
+  const l0=text.split('\n')[0].replace(/^\uFEFF/,'');
+  const tc=l0.split('\t').length-1,cc=l0.split(',').length-1;
+  const delim=tc>=cc?'\t':',';
+  let headers=[],rows=[],fields=[],field='',inQ=false,isH=true;
+  for(let i=0;i<=text.length;i++){
+    const ch=i<text.length?text[i]:'\n';
+    if(inQ){if(ch==='"'){if(text[i+1]==='"'){field+='"';i++;}else inQ=false;}else field+=ch;}
+    else if(ch==='"')inQ=true;
+    else if(ch===delim){fields.push(field.trim());field='';}
+    else if(ch==='\n'||ch==='\r'){
+      fields.push(field.trim());field='';
+      if(fields.some(f=>f!=='')){
+        if(isH){headers=fields.map(h=>h.replace(/^\uFEFF/,'').trim().replace(/^"|"$/g,''));isH=false;}
+        else{const o={};headers.forEach((h,idx)=>o[h]=fields[idx]!==undefined?fields[idx].trim():'');rows.push(o);}
+      }
+      fields=[];if(ch==='\r'&&text[i+1]==='\n')i++;
+    }else field+=ch;
+  }
+  return{headers,rows};
+}
+function detectType(headers){
+  if(headers.includes(A.promptsAll))return'active';
+  if(headers.includes(D.guid))return'detail';
+  if(headers.includes(R.hasLicence))return'ready';
+  if(headers.includes(V.pid)&&headers.includes(V.totalAct))return'viva';
+  return null;
+}
+function dparse(s){
+  if(!s||s.trim()===''||s.trim().toLowerCase()==='n/a')return null;
+  const t=s.trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(t)){const d=new Date(t);return isNaN(d)?null:d;}
+  const sl=t.split('/');
+  if(sl.length===3){
+    const[a,b,c]=sl.map(x=>parseInt(x,10));
+    if(sl[2].length===4){if(a>12)return new Date(c,b-1,a);if(b>12)return new Date(c,a-1,b);return new Date(c,b-1,a);}
+  }
+  const d=new Date(t);return isNaN(d)?null:d;
+}
+function latestDate(a,b){if(!a)return b;if(!b)return a;return a>b?a:b;}
+function daysSince(d){return d?Math.floor((TODAY-d)/86400000):null;}
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str.trim().toLowerCase()));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function handleFile(slot,input){
+  const file=input.files[0];if(!file)return;
+  const name=file.name.toLowerCase();
+  const isXlsx=name.endsWith('.xlsx')||name.endsWith('.xls')||name.endsWith('.xlsm');
+  const isVipSlot=(slot==='vip');
+
+  // ── EXCEL path (SheetJS) ─────────────────────────────────────────────────
+  if(isXlsx||isVipSlot&&isXlsx){
+    if(typeof XLSX==='undefined'){
+      showErr('SheetJS library not loaded. Please check your internet connection and reload.');return;
+    }
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const data=XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});
+        if(!data.length){showErr('Excel file appears empty or has no data rows.');return;}
+        const headers=Object.keys(data[0]);
+        // Convert array-of-objects to same format as parseCSV
+        const rows=data.map(row=>{
+          const o={};headers.forEach(h=>o[h]=(row[h]||'').toString().trim());return o;
+        });
+        handleParsedData(slot,file.name,headers,rows);
+      }catch(err){showErr('Excel parse error: '+err.message);console.error(err);}
+    };
+    reader.readAsArrayBuffer(file);
+    return;
+  }
+
+  // ── CSV / text path ──────────────────────────────────────────────────────
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const{headers,rows}=parseCSV(e.target.result);
+      handleParsedData(slot,file.name,headers,rows);
+    }catch(err){showErr('Parse error: '+err.message);console.error(err);}
+  };
+  reader.readAsText(file,'utf-8');
+}
+
+function handleParsedData(slot,filename,headers,rows){
+  const type=detectType(headers)||slot;
+  if(type==='vip'||slot==='vip'){
+    const parsed=parseVipList(rows,headers);
+    if(!parsed.length){
+      showErr('VIP file loaded but no user rows found. Check the file has Name and Email columns.');return;
+    }
+    VIP_LIST=parsed;
+    FILES.vip=rows;
+    markSlot('vip',filename,VIP_LIST.length);
+    const sc=document.getElementById('sb-vip-count');if(sc)sc.textContent=VIP_LIST.length;
+    const dot=document.getElementById('dot-vip');if(dot){dot.className='sb-dot ok';dot.style.background='var(--am2)';}
+    checkReady();
+    if(MERGED.length)renderVip();
+  }else{
+    FILES[type]=rows;markSlot(type,filename,rows.length);checkReady();
+  }
+}
+function markSlot(slot,name,count){
+  const el=document.getElementById('slot-'+slot);if(el)el.classList.add('loaded');
+  const st=document.getElementById('st-'+slot);if(st){st.textContent=name+' ('+count+' rows)';st.style.display='block';}
+  const dot=document.getElementById('dot-'+slot);if(dot)dot.className='sb-dot ok'+(slot==='viva'?' viva':'');
+}
+function checkReady(){document.getElementById('btn-load').disabled=!(FILES.active||FILES.detail||FILES.ready||FILES.viva);}
+function showErr(msg){const el=document.getElementById('up-err');el.textContent=msg;el.style.display='block';}
+
+async function buildVivaIndex(){
+  if(!FILES.viva){VIVA_LOADED=false;return;}
+  VIVA_BY_PID={};
+  for(const row of FILES.viva){
+    const pid=(row[V.pid]||'').trim();if(!pid)continue;
+    const ex=VIVA_BY_PID[pid];if(!ex){VIVA_BY_PID[pid]=row;continue;}
+    const dN=dparse(row[V.date]),dO=dparse(ex[V.date]);
+    if(dN&&(!dO||dN>dO))VIVA_BY_PID[pid]=row;
+  }
+  VIVA_TOTAL=Object.keys(VIVA_BY_PID).length;
+  const upns=new Set();
+  if(FILES.active)FILES.active.forEach(r=>{const u=(r[A.upn]||'').toLowerCase().trim();if(u)upns.add(u);});
+  if(FILES.detail)FILES.detail.forEach(r=>{const u=(r[D.upn]||'').toLowerCase().trim();if(u)upns.add(u);});
+  UPN_TO_PID={};PID_TO_UPN={};let matched=0;
+  if(FILES.detail){
+    const gMap={};FILES.detail.forEach(r=>{const g=(r[D.guid]||'').toLowerCase().trim();const u=(r[D.upn]||'').toLowerCase().trim();if(g&&u)gMap[g]=u;});
+    for(const pid of Object.keys(VIVA_BY_PID)){const pidL=pid.toLowerCase();if(gMap[pidL]&&!UPN_TO_PID[gMap[pidL]]){UPN_TO_PID[gMap[pidL]]=pid;PID_TO_UPN[pid]=gMap[pidL];matched++;}}
+  }
+  if(upns.size>0){
+    const hMap={};
+    for(const upn of upns){const h=await sha256(upn);const t=h.slice(0,32);const uuid=`${t.slice(0,8)}-${t.slice(8,12)}-${t.slice(12,16)}-${t.slice(16,20)}-${t.slice(20,32)}`;if(!hMap[uuid])hMap[uuid]=upn;}
+    for(const pid of Object.keys(VIVA_BY_PID)){const pidL=pid.toLowerCase();if(hMap[pidL]&&!UPN_TO_PID[hMap[pidL]]){UPN_TO_PID[hMap[pidL]]=pid;PID_TO_UPN[pid]=hMap[pidL];matched++;}}
+  }
+  if(upns.size>0&&matched<VIVA_TOTAL*0.2){
+    const rMap={};for(const upn of upns){const h=await sha256(upn);rMap[h.slice(0,32)]=upn;}
+    for(const pid of Object.keys(VIVA_BY_PID)){const s=pid.replace(/-/g,'').toLowerCase();if(rMap[s]&&!UPN_TO_PID[rMap[s]]){UPN_TO_PID[rMap[s]]=pid;PID_TO_UPN[pid]=rMap[s];matched++;}}
+  }
+  VIVA_LOADED=true;
+  const pct=VIVA_TOTAL>0?Math.round(matched/VIVA_TOTAL*100):0;
+  const sm=document.getElementById('sb-match');if(sm)sm.textContent=pct;
+  const dot=document.getElementById('dot-viva');if(dot)dot.style.background=pct>=50?'var(--gn2)':pct>0?'var(--am2)':'var(--rd2)';
+  console.log('Viva join: '+matched+'/'+VIVA_TOTAL+' ('+pct+'%)');
+}
+
+function nv(r,c){if(!r||r[c]===undefined||r[c]==='')return 0;const x=parseFloat(String(r[c]).replace(/,/g,''));return isNaN(x)?0:x;}
+function bool(r,c){const v=String(r&&r[c]||'').toLowerCase().trim();return v==='true'||v==='1'||v==='yes';}
+function newUser(upn){return{upn,displayName:'',prompts:0,promptsWork:0,promptsWeb:0,activeDays:0,lastActivity:null,lastTeams:null,lastWord:null,lastExcel:null,lastPPT:null,lastOutlook:null,lastOneNote:null,hasLicence:null,readiness:null,readyScore:0,period:'',refreshDate:'',guid:'',vivaRow:null,vivaMatched:false,vivaOrg:'',source:[]};}
+
+function mergeData(){
+  const map={};
+  if(FILES.active)FILES.active.forEach(r=>{
+    const upn=(r[A.upn]||'').toLowerCase().trim();if(!upn)return;
+    if(!map[upn])map[upn]=newUser(upn);const u=map[upn];u.source.push('active');
+    u.displayName=u.displayName||r[A.displayName]||upn;u.period=u.period||r[A.period]||'';u.refreshDate=u.refreshDate||r[A.refreshDate]||'';
+    u.prompts=Math.max(u.prompts,nv(r,A.promptsAll));u.promptsWork=Math.max(u.promptsWork,nv(r,A.promptsWork));u.promptsWeb=Math.max(u.promptsWeb,nv(r,A.promptsWeb));u.activeDays=Math.max(u.activeDays,nv(r,A.activeDays));
+    u.lastActivity=latestDate(u.lastActivity,dparse(r[A.lastActivity]));u.lastTeams=latestDate(u.lastTeams,dparse(r[A.lastTeams]));u.lastWord=latestDate(u.lastWord,dparse(r[A.lastWord]));u.lastExcel=latestDate(u.lastExcel,dparse(r[A.lastExcel]));u.lastPPT=latestDate(u.lastPPT,dparse(r[A.lastPPT]));u.lastOutlook=latestDate(u.lastOutlook,dparse(r[A.lastOutlook]));u.lastOneNote=latestDate(u.lastOneNote,dparse(r[A.lastOneNote]));
+  });
+  if(FILES.detail)FILES.detail.forEach(r=>{
+    const upn=(r[D.upn]||'').toLowerCase().trim();if(!upn)return;
+    if(!map[upn])map[upn]=newUser(upn);const u=map[upn];u.source.push('detail');
+    u.displayName=u.displayName||r[D.displayName]||upn;u.guid=u.guid||r[D.guid]||'';u.period=u.period||r[D.period]||'';u.refreshDate=u.refreshDate||r[D.refreshDate]||'';
+    u.prompts=Math.max(u.prompts,nv(r,D.prompts));u.activeDays=Math.max(u.activeDays,nv(r,D.activeDays));
+    u.lastActivity=latestDate(u.lastActivity,dparse(r[D.lastActivity]));u.lastTeams=latestDate(u.lastTeams,dparse(r[D.lastTeams]));u.lastWord=latestDate(u.lastWord,dparse(r[D.lastWord]));u.lastExcel=latestDate(u.lastExcel,dparse(r[D.lastExcel]));u.lastPPT=latestDate(u.lastPPT,dparse(r[D.lastPPT]));u.lastOutlook=latestDate(u.lastOutlook,dparse(r[D.lastOutlook]));u.lastOneNote=latestDate(u.lastOneNote,dparse(r[D.lastOneNote]));
+  });
+  if(FILES.ready)FILES.ready.forEach(r=>{
+    const upn=(r[R.upn]||'').toLowerCase().trim();if(!upn)return;
+    if(!map[upn])map[upn]=newUser(upn);const u=map[upn];u.source.push('ready');
+    u.refreshDate=u.refreshDate||r[R.refreshDate]||'';
+    const lic=(r[R.hasLicence]||'').toLowerCase();u.hasLicence=lic==='true'||lic==='1'||lic==='yes';
+    u.readiness={updateChan:bool(r,R.updateChan),teamsMtg:bool(r,R.teamsMtg),teamsChat:bool(r,R.teamsChat),outlookEmail:bool(r,R.outlookEmail),officeDocs:bool(r,R.officeDocs)};
+    u.readyScore=Object.values(u.readiness).filter(Boolean).length;
+  });
+  if(VIVA_LOADED)for(const[upn,pid]of Object.entries(UPN_TO_PID)){if(map[upn]&&VIVA_BY_PID[pid]){map[upn].vivaRow=VIVA_BY_PID[pid];map[upn].vivaMatched=true;map[upn].vivaOrg=(VIVA_BY_PID[pid][V.org]||'').trim();}}
+  MERGED=Object.values(map).map(u=>{
+    const d=daysSince(u.lastActivity);u.daysSince=d;
+    if(u.prompts>0||u.activeDays>0)u.status=d===null||d<=30?'active':d<=60?'churned':'lost';
+    else u.status='never';
+    u.appsUsed=[u.lastTeams,u.lastWord,u.lastExcel,u.lastPPT,u.lastOutlook,u.lastOneNote].filter(Boolean).length;
+    u.isChampion=u.prompts>=100&&u.appsUsed>=3&&u.activeDays>=10;
+    u.domain=u.upn.includes('@')?u.upn.split('@')[1]:'unknown';
+    u.orgGroup=u.vivaOrg||u.domain;
+    u.initials=u.displayName.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||u.upn.slice(0,2).toUpperCase();
+    u.vivaAct=u.vivaRow?nv(u.vivaRow,V.totalAct):0;u.vivaDays=u.vivaRow?nv(u.vivaRow,V.totalActiveDays):0;
+    return u;
+  });
+  FILTERED=MERGED;
+}
+
+function applyFilters(){
+  const seg=document.getElementById('f-seg').value;const srch=(document.getElementById('tb-search').value||'').toLowerCase();
+  FILTERED=MERGED.filter(u=>(!seg||u.status===seg)&&(!srch||u.displayName.toLowerCase().includes(srch)||u.upn.includes(srch)));
+  renderAll();
+}
+
+const fmt=v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1000?(v/1000).toFixed(1)+'k':Math.round(v).toString();
+const pct=(a,b)=>b===0?0:Math.round(a/b*100);
+const setV=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+const setH=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+const show=(id,v)=>{const e=document.getElementById(id);if(e)e.style.display=v?'block':'none';};
+function SA(col){return Object.values(VIVA_BY_PID).reduce((s,r)=>s+nv(r,col),0);}
+function barH(items,color,lblClass=''){
+  if(!items||!items.length)return'<div class="empty"><div class="empty-ic">&#128202;</div>No data</div>';
+  const max=Math.max(...items.map(i=>i.val),1);
+  return items.map(i=>`<div class="br"><div class="blbl${lblClass?' '+lblClass:''}" title="${i.label}">${i.label}</div><div class="btr"><div class="bfl" style="width:${Math.max(2,Math.round(i.val/max*100))}%;background:${color}"></div></div><div class="bvl">${Number.isInteger(i.val)?fmt(i.val):i.val.toFixed(1)}</div></div>`).join('');
+}
+function laPill(date){
+  if(!date)return'<span class="la la-none">-</span>';
+  const d=Math.floor((TODAY-date)/86400000);
+  if(d<=7)return`<span class="la la-hot">${d}d</span>`;if(d<=30)return`<span class="la la-warm">${d}d</span>`;return`<span class="la la-cold">${d}d</span>`;
+}
+function sBadge(u){const m={active:'b-active Active',churned:'b-churned Churned',lost:'b-lost Lost',never:'b-never Never'};const[c,l]=(m[u.status]||'b-never -').split(' ');return`<span class="badge ${c}">${l}</span>${u.isChampion?' <span class="badge b-champ">&#127942;</span>':''}`;
+}
+function avColor(ini){const cs=['#1a6ed8','#7b2fbe','#107c10','#e8a000','#c41e3a','#006f6f'];let h=0;for(const c of ini)h=(h*31+c.charCodeAt(0))&0xffffffff;return cs[Math.abs(h)%cs.length];}
+function tick(v){return v?'<span class="chk">&#10003;</span>':'<span class="crs">&#10007;</span>';}
+
+function renderAll(){
+  const u=FILTERED;
+  renderOverview(u);renderConsumption(u);renderUsers(u);renderApps(u);renderPrompts(u);
+  renderVivaActions();renderHeatmap();renderMeetings();renderRetention(u);renderChampions(u);renderReadiness(u);renderOrg(u);
+}
+
+function renderOverview(users){
+  const total=users.length||1,active=users.filter(u=>u.status==='active').length,churned=users.filter(u=>u.status==='churned').length,lost=users.filter(u=>u.status==='lost').length,never=users.filter(u=>u.status==='never').length,champs=users.filter(u=>u.isChampion).length;
+  const totalP=users.reduce((s,u)=>s+u.prompts,0),actU=users.filter(u=>u.status==='active');
+  setV('s-active',active);setV('sp-active',pct(active,total)+'% of licensed');setV('s-churned',churned);setV('sp-churned',pct(churned,total)+'% of licensed');setV('s-lost',lost);setV('sp-lost',pct(lost,total)+'% of licensed');setV('s-never',never);setV('sp-never',pct(never,total)+'% of licensed');
+  setV('ov-rate',pct(active,total)+'%');setV('ov-rate-s',active+' / '+total+' licensed');setV('ov-prom',fmt(totalP));setV('ov-avg',actU.length?Math.round(totalP/actU.length):0);setV('ov-act',VIVA_LOADED?fmt(SA(V.totalAct)):'-');
+  const fD=[{label:'Licensed',val:total,bg:'#f0f4ff',tc:'#374151'},{label:'Active',val:active,bg:'#dcfce7',tc:'#107c10'},{label:'Champions',val:champs,bg:'#fef9c3',tc:'#a16207'}];
+  const mxF=total||1;setH('ov-funnel',fD.map((f,i)=>`<div class="f-seg" style="flex:${Math.max(5,Math.round(f.val/mxF*100))};background:${f.bg}${i?';border-left:1px solid rgba(0,0,0,.06)':''}"><div class="f-n" style="color:${f.tc}">${f.val.toLocaleString()}</div><div class="f-l">${f.label}</div></div>`).join(''));
+  setH('ov-leg','<div class="leg-i"><div class="leg-sq" style="background:#f0f4ff;border:1px solid #b2c4f0"></div>Licensed</div><div class="leg-i"><div class="leg-sq" style="background:#dcfce7;border:1px solid #86efac"></div>Active</div><div class="leg-i"><div class="leg-sq" style="background:#fef9c3;border:1px solid #fde047"></div>Champions</div>');
+  const rec=[{label:'0-7 days',val:actU.filter(u=>u.daysSince!==null&&u.daysSince<=7).length},{label:'8-14 days',val:actU.filter(u=>u.daysSince>7&&u.daysSince<=14).length},{label:'15-30 days',val:actU.filter(u=>u.daysSince>14&&u.daysSince<=30).length}];
+  setH('ov-recency',barH(rec,'var(--gn2)','s'));
+  const bkts=[{label:'0',val:users.filter(u=>u.prompts===0).length},{label:'1-9',val:users.filter(u=>u.prompts>=1&&u.prompts<10).length},{label:'10-49',val:users.filter(u=>u.prompts>=10&&u.prompts<50).length},{label:'50-99',val:users.filter(u=>u.prompts>=50&&u.prompts<100).length},{label:'100+',val:users.filter(u=>u.prompts>=100).length}];
+  setH('ov-dist',barH(bkts,'var(--bl)','xs'));
+  if(VIVA_LOADED){const aI=[{label:'Summarise email',val:SA(V.actSumEmail)},{label:'Meeting recap',val:SA(V.actRecap)},{label:'Draft document',val:SA(V.actDraftWord)},{label:'Rewrite text',val:SA(V.actRewrite)},{label:'Summarise meeting',val:SA(V.actSumMtg)},{label:'Excel analysis',val:SA(V.actXlAnalysis)}].filter(i=>i.val>0).sort((a,b)=>b.val-a.val).slice(0,6);setH('ov-viva-actions',aI.length?barH(aI,'var(--vi2)','w'):'<div class="empty"><div class="empty-ic">&#9889;</div>No action data in Viva export (all zeros in this extract)</div>');}
+  else setH('ov-viva-actions','<div class="empty"><div class="empty-ic">&#9889;</div>Load Viva export to see Copilot actions</div>');
+}
+
+function renderConsumption(users){
+  const totalP=users.reduce((s,u)=>s+u.prompts,0),totalW=users.reduce((s,u)=>s+u.promptsWork,0),totalWb=users.reduce((s,u)=>s+u.promptsWeb,0);
+  setV('con-prom',fmt(totalP));setV('con-work',fmt(totalW));setV('con-web',fmt(totalWb));setV('con-act',VIVA_LOADED?fmt(SA(V.totalAct)):'-');
+  const circ=2*Math.PI*40,tot2=totalP||1;
+  const wA=totalW/tot2*circ,wbA=totalWb/tot2*circ;
+  const cw=document.getElementById('cd-work'),cwb=document.getElementById('cd-web');
+  if(cw){cw.setAttribute('stroke-dasharray',wA+' '+(circ-wA));cw.setAttribute('stroke-dashoffset','-63');}
+  if(cwb){cwb.setAttribute('stroke-dasharray',wbA+' '+(circ-wbA));cwb.setAttribute('stroke-dashoffset',-(63+wA+2));}
+  setH('con-donut-leg',`<div class="dleg"><div class="ddot" style="background:var(--bl)"></div><div class="dlbl">Chat (work)</div><div class="dval">${fmt(totalW)}</div></div><div class="dleg"><div class="ddot" style="background:var(--tl2)"></div><div class="dlbl">Chat (web)</div><div class="dval">${fmt(totalWb)}</div></div><div class="dleg"><div class="ddot" style="background:var(--s3);border:1px solid var(--b2)"></div><div class="dlbl">Other apps</div><div class="dval">${fmt(Math.max(0,totalP-totalW-totalWb))}</div></div>`);
+  const topU=[...users].sort((a,b)=>(b.prompts+b.vivaAct)-(a.prompts+a.vivaAct)).slice(0,8);const mxC=topU[0]?(topU[0].prompts+topU[0].vivaAct):1;
+  setH('con-top-users',topU.map(u=>`<div class="br"><div class="blbl w" title="${u.displayName}">${u.displayName}</div><div class="btr"><div class="bfl" style="width:${Math.max(2,Math.round((u.prompts+u.vivaAct)/mxC*100))}%;background:linear-gradient(90deg,var(--bl),var(--vi2))"></div></div><div class="bvl">${u.prompts}</div></div>`).join('')||'<div class="empty"><div class="empty-ic">&#128172;</div>No data</div>');
+  const bk=[{label:'0',val:users.filter(u=>u.prompts===0).length},{label:'1-9',val:users.filter(u=>u.prompts>=1&&u.prompts<10).length},{label:'10-49',val:users.filter(u=>u.prompts>=10&&u.prompts<50).length},{label:'50-99',val:users.filter(u=>u.prompts>=50&&u.prompts<100).length},{label:'100-199',val:users.filter(u=>u.prompts>=100&&u.prompts<200).length},{label:'200+',val:users.filter(u=>u.prompts>=200).length}];
+  setH('con-buckets',barH(bk,'var(--bl)','s'));
+  if(VIVA_LOADED){const om={};Object.values(VIVA_BY_PID).forEach(r=>{const o=(r[V.org]||'Unknown').trim();if(!om[o])om[o]=0;om[o]+=nv(r,V.totalAct);});setH('con-org-bars',barH(Object.entries(om).map(([k,v])=>({label:k,val:v})).sort((a,b)=>b.val-a.val).slice(0,10),'var(--vi2)'));}
+  else{const dm={};users.forEach(u=>{if(!dm[u.domain])dm[u.domain]=0;dm[u.domain]+=u.prompts;});setH('con-org-bars',barH(Object.entries(dm).map(([k,v])=>({label:k,val:v})).sort((a,b)=>b.val-a.val),'var(--vi2)'));}
+  const t20=[...users].sort((a,b)=>b.prompts-a.prompts).slice(0,20);
+  setH('con-body',t20.map((u,i)=>`<tr><td class="mc">${i+1}</td><td class="dn-c">${u.displayName}</td><td class="upn-c" title="${u.upn}">${u.upn}</td><td class="mc" style="font-weight:700">${u.prompts}</td><td class="mc">${u.promptsWork}</td><td class="mc">${u.promptsWeb}</td><td class="mc">${u.activeDays}</td><td class="mc">${u.vivaAct||'-'}</td><td class="mc">${u.appsUsed}</td><td>${laPill(u.lastActivity)}</td><td>${sBadge(u)}</td></tr>`).join('')||'<tr><td colspan="11" style="text-align:center;padding:14px;color:var(--mu)">No data</td></tr>');
+}
+
+let _allUsers=[];
+function renderUsers(users){
+  _allUsers=users;
+  const seg=[{label:'Active',val:users.filter(u=>u.status==='active').length},{label:'Churned',val:users.filter(u=>u.status==='churned').length},{label:'Lost',val:users.filter(u=>u.status==='lost').length},{label:'Never',val:users.filter(u=>u.status==='never').length}];
+  setH('u-seg-dist',barH(seg,'var(--bl)','xs'));
+  const vivaU=users.filter(u=>u.vivaRow);const appDays=[{label:'Teams',col:V.daysTeams},{label:'Outlook',col:V.daysOutlook},{label:'Word',col:V.daysWord},{label:'Excel',col:V.daysExcel},{label:'PPT',col:V.daysPPT}];
+  if(VIVA_LOADED&&vivaU.length)setH('u-viva-appdays',barH(appDays.map(a=>({label:a.label,val:+(vivaU.reduce((s,u)=>s+nv(u.vivaRow,a.col),0)/vivaU.length).toFixed(1)})).sort((a,b)=>b.val-a.val),'var(--vi2)'));
+  else setH('u-viva-appdays','<div class="empty"><div class="empty-ic">&#9889;</div>Load Viva export</div>');
+  renderUsersTable();
+}
+function renderUsersTable(){
+  const segF=document.getElementById('u-seg').value,srch=(document.getElementById('u-search').value||'').toLowerCase();
+  let rows=_allUsers;
+  if(segF==='champion')rows=rows.filter(u=>u.isChampion);else if(segF)rows=rows.filter(u=>u.status===segF);
+  if(srch)rows=rows.filter(u=>u.displayName.toLowerCase().includes(srch)||u.upn.includes(srch));
+  const{col,dir}=_uSort;
+  rows=[...rows].sort((a,b)=>{
+    let av,bv;if(col==='name'){av=a.displayName;bv=b.displayName;}else if(col==='upn'){av=a.upn;bv=b.upn;}else if(col==='status'){av=a.status;bv=b.status;}else if(col==='prompts'){av=a.prompts;bv=b.prompts;}else if(col==='days'){av=a.activeDays;bv=b.activeDays;}else if(col==='lastact'){av=a.daysSince??9999;bv=b.daysSince??9999;}else if(col==='vivaAct'){av=a.vivaAct;bv=b.vivaAct;}
+    if(av<bv)return dir==='asc'?-1:1;if(av>bv)return dir==='asc'?1:-1;return 0;
+  });
+  setH('users-body',rows.slice(0,100).map(u=>{const col2=avColor(u.initials);return`<tr><td><div class="av-cell"><div class="av" style="background:${col2}18;color:${col2}">${u.initials}</div><span class="dn-c">${u.displayName}</span></div></td><td class="upn-c" title="${u.upn}">${u.upn}</td><td>${sBadge(u)}</td><td class="mc">${u.prompts}</td><td class="mc">${u.activeDays}</td><td>${laPill(u.lastActivity)}</td><td>${laPill(u.lastTeams)}</td><td>${laPill(u.lastWord)}</td><td>${laPill(u.lastExcel)}</td><td>${laPill(u.lastPPT)}</td><td>${laPill(u.lastOutlook)}</td><td>${laPill(u.lastOneNote)}</td><td class="mc">${u.vivaAct||'-'}</td><td>${u.vivaMatched?'<span class="match-ok">&#10003;</span>':'<span class="match-no">-</span>'}</td></tr>`;}).join('')||'<tr><td colspan="14" style="text-align:center;padding:18px;color:var(--mu)">No matching users</td></tr>');
+}
+function sortU(col){_uSort.dir=(_uSort.col===col&&_uSort.dir==='desc')?'asc':'desc';_uSort.col=col;renderUsersTable();}
+
+function renderApps(users){
+  const appDefs=[{em:'&#128172;',nm:'Teams',lk:'lastTeams',vc:V.daysTeams,ac:V.actTeams},{em:'&#128231;',nm:'Outlook',lk:'lastOutlook',vc:V.daysOutlook,ac:V.actOutlook},{em:'&#128221;',nm:'Word',lk:'lastWord',vc:V.daysWord,ac:V.actWord},{em:'&#128202;',nm:'Excel',lk:'lastExcel',vc:V.daysExcel,ac:V.actExcel},{em:'&#127902;',nm:'PowerPoint',lk:'lastPPT',vc:V.daysPPT,ac:V.actPPT}];
+  const total=users.length||1,vivaU=users.filter(u=>u.vivaRow);
+  setH('app-tiles',appDefs.map(a=>{const active=users.filter(u=>u[a.lk]).length;const days=users.filter(u=>u[a.lk]).map(u=>Math.floor((TODAY-u[a.lk])/86400000));const med=days.length?days.sort((x,y)=>x-y)[Math.floor(days.length/2)]:null;const avgV=VIVA_LOADED&&vivaU.length?(vivaU.reduce((s,u)=>s+nv(u.vivaRow,a.vc),0)/vivaU.length).toFixed(1):null;const vivaAct=VIVA_LOADED?SA(a.ac):null;return`<div class="app-tile"><div class="app-em">${a.em}</div><div class="app-nm">${a.nm}</div><div class="app-v">${active.toLocaleString()}</div><div class="app-p">${pct(active,total)}% of users</div>${med!==null?`<div class="app-sub">Last used: ${med}d ago</div>`:''}${avgV?`<div class="app-sub hi">Viva avg: ${avgV}d</div>`:''}${vivaAct!==null&&vivaAct>0?`<div class="app-sub hi">${fmt(vivaAct)} actions</div>`:''}</div>`;}).join(''));
+  setH('app-users-bars',barH(appDefs.map(a=>({label:a.nm,val:users.filter(u=>u[a.lk]).length})).sort((a,b)=>b.val-a.val),'var(--bl)'));
+  setH('app-viva-days',VIVA_LOADED&&vivaU.length?barH(appDefs.map(a=>({label:a.nm,val:+(vivaU.reduce((s,u)=>s+nv(u.vivaRow,a.vc),0)/vivaU.length).toFixed(1)})).sort((a,b)=>b.val-a.val),'var(--vi2)'):'<div class="empty"><div class="empty-ic">&#9889;</div>Load Viva export</div>');
+  const mlt=[5,4,3,2,1,0].map(k=>({label:k+' app'+(k!==1?'s':''),val:users.filter(u=>u.appsUsed===k).length}));setH('app-multi-bars',barH(mlt,'var(--tl2)','xs'));
+  const rec=appDefs.map(a=>{const d=users.filter(u=>u[a.lk]).map(u=>Math.floor((TODAY-u[a.lk])/86400000));const med=d.length?d.sort((x,y)=>x-y)[Math.floor(d.length/2)]:0;return{label:a.nm,val:med};}).sort((a,b)=>a.val-b.val);setH('app-recency-bars',barH(rec,'var(--am2)'));
+}
+
+function renderPrompts(users){
+  const tp=users.reduce((s,u)=>s+u.prompts,0),tw=users.reduce((s,u)=>s+u.promptsWork,0),twb=users.reduce((s,u)=>s+u.promptsWeb,0),actU=users.filter(u=>u.status==='active');
+  setV('pr-total',fmt(tp));setV('pr-work',fmt(tw));setV('pr-web',fmt(twb));setV('pr-avg',actU.length?Math.round(tp/actU.length):0);
+  const top=[...users].sort((a,b)=>b.prompts-a.prompts).slice(0,10);const mxP=top[0]?top[0].prompts:1;
+  setH('pr-top-users',top.map(u=>`<div class="br"><div class="blbl w" title="${u.displayName}">${u.displayName}</div><div class="btr"><div class="bfl" style="width:${Math.max(2,Math.round(u.prompts/mxP*100))}%;background:var(--gn2)"></div></div><div class="bvl">${u.prompts}</div></div>`).join('')||'<div class="empty"><div class="empty-ic">&#128172;</div>No data</div>');
+  const bk=[{label:'0',val:users.filter(u=>u.prompts===0).length},{label:'1-9',val:users.filter(u=>u.prompts>=1&&u.prompts<10).length},{label:'10-49',val:users.filter(u=>u.prompts>=10&&u.prompts<50).length},{label:'50-99',val:users.filter(u=>u.prompts>=50&&u.prompts<100).length},{label:'100-299',val:users.filter(u=>u.prompts>=100&&u.prompts<300).length},{label:'300+',val:users.filter(u=>u.prompts>=300).length}];setH('pr-buckets',barH(bk,'var(--bl)','xs'));
+  const t20=[...users].sort((a,b)=>b.prompts-a.prompts).slice(0,20);setH('pr-body',t20.map((u,i)=>`<tr><td class="mc">${i+1}</td><td class="dn-c">${u.displayName}</td><td class="upn-c" title="${u.upn}">${u.upn}</td><td class="mc" style="font-weight:700">${u.prompts}</td><td class="mc">${u.promptsWork}</td><td class="mc">${u.promptsWeb}</td><td class="mc">${u.activeDays}</td><td>${laPill(u.lastActivity)}</td></tr>`).join('')||'<tr><td colspan="8" style="text-align:center;padding:14px;color:var(--mu)">No data</td></tr>');
+}
+
+function renderVivaActions(){
+  show('va-empty',!VIVA_LOADED);show('va-content',VIVA_LOADED);if(!VIVA_LOADED)return;
+  const pop=Object.values(VIVA_BY_PID).length||1;
+  setV('va-total',fmt(SA(V.totalAct)));setV('va-avg',Math.round(SA(V.totalAct)/pop));setV('va-recap',fmt(SA(V.actRecap)));setV('va-coach',fmt(SA(V.actEmailCoach)));
+  const aI=[{label:'Summarise email',val:SA(V.actSumEmail)},{label:'Meeting recap',val:SA(V.actRecap)},{label:'Draft document',val:SA(V.actDraftWord)},{label:'Rewrite text',val:SA(V.actRewrite)},{label:'Summarise meeting',val:SA(V.actSumMtg)},{label:'Excel analysis',val:SA(V.actXlAnalysis)},{label:'Create PPT',val:SA(V.actCreatePPT)},{label:'Summarise chat',val:SA(V.actSumChat)},{label:'Email coaching',val:SA(V.actEmailCoach)},{label:'Excel formula',val:SA(V.actXlFormula)},{label:'Generate email',val:SA(V.actGenEmail)},{label:'Compose Teams',val:SA(V.actComposeTeams)},{label:'Summarise PPT',val:SA(V.actSumPPT)},{label:'Add to PPT',val:SA(V.actAddPPT)},{label:'Summarise Word',val:SA(V.actSumWord)},{label:'Excel format',val:SA(V.actXlFormat)}].filter(i=>i.val>0).sort((a,b)=>b.val-a.val).slice(0,12);
+  setH('va-actions-bars',aI.length?barH(aI,'var(--vi2)','w'):'<div class="empty"><div class="empty-ic">&#9889;</div>No action data - all values are zero in this Viva extract</div>');
+  const appB=[{label:'Teams',val:SA(V.actTeams)},{label:'Outlook',val:SA(V.actOutlook)},{label:'Word',val:SA(V.actWord)},{label:'Excel',val:SA(V.actExcel)},{label:'PowerPoint',val:SA(V.actPPT)},{label:'Chat (work)',val:SA(V.actCopilotChatWork)}].filter(i=>i.val>0).sort((a,b)=>b.val-a.val);
+  setH('va-app-bars',appB.length?barH(appB,'var(--bl)'):'<div class="empty"><div class="empty-ic">&#128202;</div>No app action data</div>');
+  const enB=[{label:'Productivity App',val:SA(V.enabledProd)},{label:'Teams',val:SA(V.enabledTeams)},{label:'Intelligent Search',val:SA(V.enabledSearch)},{label:'Chat (work)',val:SA(V.chatEnabledDays)},{label:'Power Platform',val:SA(V.enabledPowerPlatform)}].filter(i=>i.val>0).sort((a,b)=>b.val-a.val);
+  setH('va-enabled-bars',enB.length?barH(enB,'var(--am2)'):'<div class="empty"><div class="empty-ic">&#128197;</div>No enabled days data</div>');
+  const allVR=Object.values(VIVA_BY_PID),r28=allVR.filter(r=>bool(r,V.ret28)).length,rC28=allVR.filter(r=>bool(r,V.retChat28)).length,tot=allVR.length||1;
+  const retB=[{label:'M365 Copilot returning (28d)',val:r28},{label:'Copilot Chat returning (28d)',val:rC28},{label:'Not returning',val:Math.max(0,tot-Math.max(r28,rC28))}];setH('va-returning-bars',barH(retB,'var(--gn2)','w'));
+}
+
+function renderHeatmap(){
+  show('hm-empty',!VIVA_LOADED);show('hm-content',VIVA_LOADED);if(!VIVA_LOADED)return;
+  const apps=[{label:'Teams',col:V.actTeams},{label:'Outlook',col:V.actOutlook},{label:'Word',col:V.actWord},{label:'Excel',col:V.actExcel},{label:'PowerPoint',col:V.actPPT},{label:'Chat(work)',col:V.actCopilotChatWork}];
+  const allVR=Object.values(VIVA_BY_PID);
+  const orgs=[...new Set(allVR.map(r=>(r[V.org]||'Unknown').trim()).filter(Boolean))].sort();
+  const matrix={};apps.forEach(a=>{matrix[a.label]={};orgs.forEach(o=>{matrix[a.label][o]=0;});});
+  allVR.forEach(r=>{const org=(r[V.org]||'Unknown').trim();apps.forEach(a=>{if(matrix[a.label][org]!==undefined)matrix[a.label][org]+=nv(r,a.col);});});
+  const allVals=apps.flatMap(a=>orgs.map(o=>matrix[a.label][o]));const maxVal=Math.max(...allVals,1);
+  function heatColor(v){const t=Math.sqrt(v/maxVal);const r=Math.round(235-t*220),g=Math.round(235-t*180),b=Math.round(255-t*245);return`rgb(${r},${g},${b})`;}
+  let html=`<div style="display:flex;gap:0;margin-bottom:8px"><div style="width:88px;flex-shrink:0"></div>`;
+  orgs.forEach(o=>html+=`<div style="width:70px;font-size:8.5px;font-weight:700;color:var(--mu);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px" title="${o}">${o}</div>`);html+='</div>';
+  apps.forEach(a=>{html+=`<div style="display:flex;gap:0;margin-bottom:3px;align-items:center"><div style="width:88px;font-size:10px;font-weight:600;color:var(--mu);text-align:right;padding-right:8px;flex-shrink:0">${a.label}</div>`;
+    orgs.forEach(o=>{const v=matrix[a.label][o];html+=`<div title="${a.label} / ${o}: ${v} actions" style="width:70px;height:26px;background:${heatColor(v)};border:1px solid rgba(0,0,0,.06);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:600;color:${v>maxVal*0.5?'#fff':'var(--mu)'};">${v>0?fmt(v):''}</div>`;});html+='</div>';});
+  setH('hm-grid',html);
+  setH('hm-product-bars',barH(apps.map(a=>({label:a.label,val:SA(a.col)})).sort((a,b)=>b.val-a.val),'var(--vi2)'));
+  const orgTotals=orgs.map(o=>({label:o,val:apps.reduce((s,a)=>s+matrix[a.label][o],0)})).sort((a,b)=>b.val-a.val).slice(0,12);setH('hm-org-bars',barH(orgTotals,'var(--bl)'));
+  const actBars=[{label:'Summarise email',val:SA(V.actSumEmail)},{label:'Meeting recap',val:SA(V.actRecap)},{label:'Draft document',val:SA(V.actDraftWord)},{label:'Rewrite text',val:SA(V.actRewrite)},{label:'Summarise meeting',val:SA(V.actSumMtg)},{label:'Excel analysis',val:SA(V.actXlAnalysis)},{label:'Create PPT',val:SA(V.actCreatePPT)},{label:'Summarise chat',val:SA(V.actSumChat)},{label:'Email coaching',val:SA(V.actEmailCoach)},{label:'Excel formula',val:SA(V.actXlFormula)},{label:'Generate email',val:SA(V.actGenEmail)},{label:'Compose Teams',val:SA(V.actComposeTeams)},{label:'Summarise Word',val:SA(V.actSumWord)},{label:'Add to PPT',val:SA(V.actAddPPT)},{label:'Excel format',val:SA(V.actXlFormat)},{label:'Viz as table',val:SA(V.actVizTable)}].filter(i=>i.val>0).sort((a,b)=>b.val-a.val);
+  setH('hm-action-bars',actBars.length?barH(actBars,'var(--tl2)','w'):'<div class="empty"><div class="empty-ic">&#9648;</div>No action data found - all values are zero in this Viva extract</div>');
+}
+
+function renderMeetings(){
+  show('mt-empty',!VIVA_LOADED);show('mt-content',VIVA_LOADED);if(!VIVA_LOADED)return;
+  const allVR=Object.values(VIVA_BY_PID);
+  setV('mt-hrs',fmt(SA(V.mtgHrsRecap)));setV('mt-cnt',fmt(SA(V.mtgRecapCnt)));setV('mt-sum',fmt(SA(V.mtgHrsSum)));setV('mt-chat',fmt(SA(V.actSumChat)));
+  const om={};allVR.forEach(r=>{const o=(r[V.org]||'Unknown').trim();if(!om[o])om[o]=0;om[o]+=nv(r,V.mtgHrsRecap)+nv(r,V.mtgHrsSum);});
+  setH('mt-org-bars',barH(Object.entries(om).map(([k,v])=>({label:k,val:v})).sort((a,b)=>b.val-a.val).slice(0,8),'var(--tl2)'));
+  const tB=[{label:'Summarise chat',val:SA(V.actSumChat)},{label:'Summarise meeting',val:SA(V.actSumMtg)},{label:'Intelligent recap',val:SA(V.actRecap)},{label:'Compose message',val:SA(V.actComposeTeams)}].filter(i=>i.val>0).sort((a,b)=>b.val-a.val);
+  setH('mt-teams-bars',tB.length?barH(tB,'var(--bl)','w'):'<div class="empty"><div class="empty-ic">&#128172;</div>No Teams action data</div>');
+  const top15=[...allVR].filter(r=>nv(r,V.mtgHrsRecap)+nv(r,V.actSumChat)>0).sort((a,b)=>(nv(b,V.mtgHrsRecap)+nv(b,V.mtgHrsSum))-(nv(a,V.mtgHrsRecap)+nv(a,V.mtgHrsSum))).slice(0,15);
+  setH('mt-body',top15.map(r=>{const pid=r[V.pid];const upn=PID_TO_UPN[pid];const u=upn?MERGED.find(x=>x.upn===upn):null;const name=u?u.displayName:'(unmatched)';const org=(r[V.org]||'').trim();return`<tr><td class="dn-c">${name}</td><td style="font-size:11px;color:var(--mu)">${org}</td><td class="mc">${nv(r,V.actSumChat)}</td><td class="mc">${nv(r,V.mtgRecapCnt)}</td><td class="mc">${nv(r,V.mtgHrsRecap).toFixed(1)}</td><td class="mc">${nv(r,V.mtgHrsSum).toFixed(1)}</td><td class="mc">${nv(r,V.actComposeTeams)}</td></tr>`;}).join('')||'<tr><td colspan="7" style="text-align:center;padding:14px;color:var(--mu)">No meeting data in Viva export</td></tr>');
+}
+
+function renderRetention(users){
+  const total=users.length||1,a7=users.filter(u=>u.daysSince!==null&&u.daysSince<=7).length,a30=users.filter(u=>u.daysSince!==null&&u.daysSince<=30).length;
+  const p7=pct(a7,total),p30=pct(a30,total);
+  setV('ret7-v',p7+'%');setV('ret7-s',a7+' of '+total+' users');setV('ret30-v',p30+'%');setV('ret30-s',a30+' of '+total+' users');
+  const a7e=document.getElementById('arc7'),a30e=document.getElementById('arc30');
+  if(a7e)a7e.setAttribute('stroke-dashoffset',172-Math.round(172*p7/100));if(a30e)a30e.setAttribute('stroke-dashoffset',172-Math.round(172*p30/100));
+  const rec=[{label:'0-7 days',val:users.filter(u=>u.daysSince!==null&&u.daysSince<=7).length},{label:'8-14 days',val:users.filter(u=>u.daysSince>7&&u.daysSince<=14).length},{label:'15-30 days',val:users.filter(u=>u.daysSince>14&&u.daysSince<=30).length},{label:'31-60 days',val:users.filter(u=>u.daysSince>30&&u.daysSince<=60).length},{label:'60+ days',val:users.filter(u=>u.daysSince>60).length},{label:'Never',val:users.filter(u=>u.daysSince===null).length}];
+  setH('ret-recency',barH(rec,'var(--bl)','s'));
+  if(VIVA_LOADED){const vivaU=users.filter(u=>u.vivaRow);const srcR=vivaU.length?vivaU.map(u=>u.vivaRow):Object.values(VIVA_BY_PID);const vB=[{label:'Returning M365 (28d)',val:srcR.filter(r=>bool(r,V.ret28)).length},{label:'Returning Chat (28d)',val:srcR.filter(r=>bool(r,V.retChat28)).length},{label:'Active 4 weeks',val:srcR.filter(r=>nv(r,V.weeksM365)>=4).length},{label:'Active 3 weeks',val:srcR.filter(r=>nv(r,V.weeksM365)===3).length},{label:'Active 1-2 weeks',val:srcR.filter(r=>nv(r,V.weeksM365)>=1&&nv(r,V.weeksM365)<=2).length}];setH('ret-viva',barH(vB,'var(--vi2)','w'));}
+  else setH('ret-viva','<div class="empty"><div class="empty-ic">&#9889;</div>Load Viva export</div>');
+  const churned=[...users].filter(u=>u.status==='churned').sort((a,b)=>(b.daysSince||0)-(a.daysSince||0)).slice(0,20);
+  setH('ret-churn-body',churned.map(u=>`<tr><td class="dn-c">${u.displayName}</td><td class="upn-c" title="${u.upn}">${u.upn}</td><td>${laPill(u.lastActivity)}</td><td class="mc">${u.prompts}</td><td class="mc">${u.daysSince!==null?u.daysSince+'d':'-'}</td><td class="mc">${u.appsUsed}</td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--mu)">No churned users</td></tr>');
+}
+
+function renderChampions(users){
+  const champs=[...users].filter(u=>u.isChampion).sort((a,b)=>(b.prompts+b.vivaAct)-(a.prompts+a.vivaAct));
+  setV('ch-n',champs.length);setV('ch-prom',champs.length?Math.round(champs.reduce((s,u)=>s+u.prompts,0)/champs.length):0);setV('ch-days',champs.length?(champs.reduce((s,u)=>s+u.activeDays,0)/champs.length).toFixed(1):0);setV('ch-apps',champs.length?(champs.reduce((s,u)=>s+u.appsUsed,0)/champs.length).toFixed(1):0);setV('ch-vact',VIVA_LOADED&&champs.length?Math.round(champs.reduce((s,u)=>s+u.vivaAct,0)/champs.length):'-');
+  setH('ch-body',champs.slice(0,50).map((u,i)=>{const col2=avColor(u.initials);return`<tr><td class="mc">${i+1}</td><td><div class="av-cell"><div class="av" style="background:${col2}18;color:${col2}">${u.initials}</div><span class="dn-c">${u.displayName}</span></div></td><td class="upn-c" title="${u.upn}">${u.upn}</td><td class="mc" style="font-weight:700">${u.prompts}</td><td class="mc">${u.activeDays}</td><td class="mc">${u.appsUsed}</td><td class="mc">${u.vivaAct||'-'}</td><td>${laPill(u.lastActivity)}</td><td style="font-size:11px;color:var(--mu)">${u.vivaOrg||u.domain}</td></tr>`;}).join('')||'<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--mu)">No champions yet. Criteria: 100+ prompts, 3+ apps, 10+ active days.</td></tr>');
+  const orgChamp={};champs.forEach(u=>{const k=u.vivaOrg||u.domain;if(!orgChamp[k])orgChamp[k]=0;orgChamp[k]++;});
+  setH('ch-org-bars',barH(Object.entries(orgChamp).map(([k,v])=>({label:k,val:v})).sort((a,b)=>b.val-a.val).slice(0,10),'var(--am2)'));
+  const bk=[{label:'100-199',val:champs.filter(u=>u.prompts<200).length},{label:'200-499',val:champs.filter(u=>u.prompts>=200&&u.prompts<500).length},{label:'500+',val:champs.filter(u=>u.prompts>=500).length}];setH('ch-prom-bars',barH(bk,'var(--bl)','s'));
+}
+
+function renderReadiness(users){
+  const ru=users.filter(u=>u.readiness!==null);
+  if(!ru.length){setH('rd-tiles','<div class="empty" style="grid-column:1/-1"><div class="empty-ic">&#9989;</div>Load the Readiness Report CSV to see this page</div>');return;}
+  const total=ru.length||1,lic=ru.filter(u=>u.hasLicence).length,chan=ru.filter(u=>u.readiness&&u.readiness.updateChan).length,teams=ru.filter(u=>u.readiness&&u.readiness.teamsMtg&&u.readiness.teamsChat).length,ol=ru.filter(u=>u.readiness&&u.readiness.outlookEmail).length,full=ru.filter(u=>u.readyScore===5).length;
+  setV('rd-lic',lic);setV('rd-chan',chan);setV('rd-teams',teams);setV('rd-ol',ol);setV('rd-full',full);
+  const sigs=[{em:'&#128260;',nm:'Update Channel',val:chan,lbl:'Update Channel'},{em:'&#128197;',nm:'Teams Meetings',val:ru.filter(u=>u.readiness&&u.readiness.teamsMtg).length,lbl:'Teams Meetings'},{em:'&#128172;',nm:'Teams Chat',val:ru.filter(u=>u.readiness&&u.readiness.teamsChat).length,lbl:'Teams Chat'},{em:'&#128231;',nm:'Outlook',val:ol,lbl:'Outlook'},{em:'&#128196;',nm:'Office Docs',val:ru.filter(u=>u.readiness&&u.readiness.officeDocs).length,lbl:'Office Docs'}];
+  setH('rd-tiles',sigs.map(s=>`<div class="ready-tile"><div class="ready-em">${s.em}</div><div class="ready-nm">${s.nm}</div><div class="ready-v">${s.val.toLocaleString()}</div><div class="ready-p">${pct(s.val,total)}% of users</div></div>`).join(''));
+  setH('rd-signals',barH(sigs.map(s=>({label:s.lbl,val:s.val})),'var(--gn2)','w'));
+  const sd=[5,4,3,2,1,0].map(k=>({label:k+'/5 signals',val:ru.filter(u=>(u.readyScore||0)===k).length}));setH('rd-dist',barH(sd,'var(--bl)','s'));
+  const nr=ru.filter(u=>u.hasLicence&&(u.readyScore||0)<5).sort((a,b)=>(a.readyScore||0)-(b.readyScore||0)).slice(0,30);
+  setH('rd-body',nr.map(u=>`<tr><td class="dn-c">${u.displayName}</td><td class="upn-c" title="${u.upn}">${u.upn}</td><td>${tick(u.hasLicence)}</td><td style="text-align:center">${tick(u.readiness&&u.readiness.updateChan)}</td><td style="text-align:center">${tick(u.readiness&&u.readiness.teamsMtg)}</td><td style="text-align:center">${tick(u.readiness&&u.readiness.teamsChat)}</td><td style="text-align:center">${tick(u.readiness&&u.readiness.outlookEmail)}</td><td style="text-align:center">${tick(u.readiness&&u.readiness.officeDocs)}</td><td class="mc" style="font-weight:700">${u.readyScore||0}/5</td></tr>`).join('')||'<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--mu)">All licenced users are fully ready!</td></tr>');
+}
+
+function renderOrg(users){
+  const dm={};users.forEach(u=>{const k=u.orgGroup||u.domain||'Unknown';if(!dm[k])dm[k]={key:k,total:0,active:0,churned:0,lost:0,never:0,prompts:0,vivaAct:0,champs:0};dm[k].total++;dm[k][u.status]++;dm[k].prompts+=u.prompts;dm[k].vivaAct+=u.vivaAct;if(u.isChampion)dm[k].champs++;});
+  const doms=Object.values(dm).sort((a,b)=>b.total-a.total);const ar=d=>pct(d.active,d.total);
+  setH('org-users-bars',barH(doms.slice(0,12).map(d=>({label:d.key,val:d.active})),'var(--gn2)'));
+  setH('org-prom-bars',barH([...doms].sort((a,b)=>b.prompts-a.prompts).slice(0,12).map(d=>({label:d.key,val:d.prompts})),'var(--bl)'));
+  setH('org-body',[...doms].sort((a,b)=>ar(b)-ar(a)).slice(0,25).map(d=>{const r=ar(d),bm=r>=70?'b-hi':r>=40?'b-med':'b-lo';const avg=d.active?Math.round(d.prompts/d.active):0;return`<tr><td style="font-weight:600;font-size:12px">${d.key}</td><td class="mc">${d.total}</td><td class="mc" style="color:var(--gn)">${d.active}</td><td class="mc" style="color:var(--am)">${d.churned}</td><td class="mc" style="color:var(--mu)">${d.never}</td><td><div class="ib"><div class="ib-t"><div class="ib-f" style="width:${r}%;background:var(--bl)"></div></div><span class="mc">${r}%</span></div></td><td class="mc">${fmt(d.prompts)}</td><td class="mc">${avg}</td><td class="mc" style="color:var(--vi2)">${VIVA_LOADED?fmt(d.vivaAct):'-'}</td><td class="mc">${d.champs}</td><td><span class="badge ${bm}">${r>=70?'High':r>=40?'Medium':'Low'}</span></td></tr>`;}).join('')||'<tr><td colspan="11" style="text-align:center;padding:14px;color:var(--mu)">No data</td></tr>');
+  const mxA=Math.max(...doms.map(d=>d.active+d.churned+d.never),1);
+  setH('org-seg-bars',doms.slice(0,10).map(d=>`<div class="br"><div class="blbl" title="${d.key}">${d.key}</div><div class="btr" style="overflow:visible;display:flex;height:8px;gap:2px"><div style="height:8px;width:${Math.round(d.active/mxA*100)}%;background:var(--gn2);border-radius:3px 0 0 3px;min-width:${d.active?2:0}px"></div><div style="height:8px;width:${Math.round(d.churned/mxA*100)}%;background:var(--am2);min-width:${d.churned?2:0}px"></div><div style="height:8px;width:${Math.round(d.never/mxA*100)}%;background:var(--s3);border-radius:0 3px 3px 0;min-width:${d.never?2:0}px"></div></div><div class="bvl">${d.total}</div></div>`).join('')+'<div class="leg" style="margin-top:8px"><div class="leg-i"><div class="leg-sq" style="background:var(--gn2)"></div>Active</div><div class="leg-i"><div class="leg-sq" style="background:var(--am2)"></div>Churned</div><div class="leg-i"><div class="leg-sq" style="background:var(--s3);border:1px solid var(--b2)"></div>Never</div></div>');
+  if(VIVA_LOADED){const vm={};Object.values(VIVA_BY_PID).forEach(r=>{const o=(r[V.org]||'Unknown').trim();if(!vm[o])vm[o]=0;vm[o]+=nv(r,V.totalAct);});setH('org-viva-bars',barH(Object.entries(vm).map(([k,v])=>({label:k,val:v})).sort((a,b)=>b.val-a.val).slice(0,15),'var(--vi2)'));}
+  else setH('org-viva-bars','<div class="empty"><div class="empty-ic">&#9889;</div>Load Viva export</div>');
+}
+
+const TITLES={overview:'Overview',vip:'VIP User Analysis',consumption:'Consumption Analysis',users:'User Directory',apps:'App Adoption',prompts:'Prompts',vivaact:'Copilot Actions (Viva)',heatmap:'Product Usage Heatmap (Viva)',meetings:'Meetings & Teams (Viva)',retention:'Retention',champions:'Champions',readiness:'Readiness',org:'Org Breakdown'};
+function nav(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');el.classList.add('active');setV('tb-h',TITLES[id]||id);}
+function drillSeg(seg){document.getElementById('f-seg').value=seg;applyFilters();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-users').classList.add('active');document.querySelector('.nav-item[onclick*="users"]').classList.add('active');setV('tb-h','User Directory');}
+
+async function buildDashboard(){
+  const btn=document.getElementById('btn-load');btn.disabled=true;btn.textContent='Processing...';
+  try{
+    await buildVivaIndex();mergeData();
+    const allPeriods=[...new Set(MERGED.map(u=>u.period).filter(Boolean))],allRefresh=[...new Set(MERGED.map(u=>u.refreshDate).filter(Boolean))];
+    setV('sb-meta',MERGED.length.toLocaleString()+' users loaded');setV('sb-refresh',allRefresh[0]||'-');setV('sb-period',(allPeriods[0]||'-')+' days');
+    setV('tb-p',MERGED.length.toLocaleString()+' users'+(allPeriods[0]?' - '+allPeriods[0]+' day period':'')+(VIVA_LOADED?' | Viva: '+VIVA_TOTAL+' rows':''));
+    renderAll();renderVip();document.getElementById('upload').style.display='none';document.getElementById('shell').style.display='block';
+  }catch(e){console.error(e);showErr('Error: '+e.message);}
+  btn.disabled=false;btn.innerHTML='&#128640; Load Dashboard';
+}
+
+function resetDash(){
+  FILES={active:null,detail:null,ready:null,viva:null,vip:null};VIP_LIST=[];VIP_MATCHED=[];VIP_GROUP_FILTER='';MERGED=[];FILTERED=[];VIVA_BY_PID={};UPN_TO_PID={};PID_TO_UPN={};VIVA_LOADED=false;
+  ['active','detail','ready','viva','vip'].forEach(k=>{const s=document.getElementById('slot-'+k);if(s)s.classList.remove('loaded');const st=document.getElementById('st-'+k);if(st)st.style.display='none';const fi=document.getElementById('fi-'+k);if(fi)fi.value='';const dot=document.getElementById('dot-'+k);if(dot){dot.className='sb-dot';dot.style.background='';}});const sc2=document.getElementById('sb-vip-count');if(sc2)sc2.textContent='-';
+  document.getElementById('btn-load').disabled=true;document.getElementById('upload').style.display='flex';document.getElementById('shell').style.display='none';document.getElementById('f-seg').value='';document.getElementById('tb-search').value='';
+}
+
+async function loadSample(){
+  const btn=document.getElementById('btn-load');btn.disabled=true;btn.textContent='Generating...';
+  const orgsV=['Trading and Revenue Management','Technology','Operations','Finance','HR & People','Commercial','Safety & Compliance','Legal'];
+  const doms=['easyjet.com','easyjet.com','easyjet.com','easyjet.aero','ops.easyjet.com'];
+  const fn=['James','Sarah','Priya','Omar','Lisa','Chen','David','Anna','Tom','Zoe','Mark','Emma','Paul','Nina','Alex','Raj','Sophie','Mike','Claire','Ben','Tim','Laura','Michael','Jiten','Leah'];
+  const ln=['Smith','Patel','Johnson','Khan','Williams','Zhang','Brown','Mueller','Costa','Ahmed','Taylor','Lee','Martin','Wilson','Garcia','Sharma','Jones','Clark','Hall','White','Langridge','Magill','Proctor','Hazelden','Cook'];
+  const now=new Date();
+  const ago=d=>{const dt=new Date(now);dt.setDate(dt.getDate()-d);return dt.toISOString().slice(0,10);};
+  const agoDMY=d=>{const dt=new Date(now);dt.setDate(dt.getDate()-d);const dd=String(dt.getDate()).padStart(2,'0'),mm=String(dt.getMonth()+1).padStart(2,'0');return`${dd}/${mm}/${dt.getFullYear()}`;};
+  const aRows=[],dRows=[],rRows=[],vRows=[];
+  for(let i=0;i<150;i++){
+    const f=fn[i%fn.length],l=ln[(i*3)%ln.length],dom=doms[i%doms.length];
+    const upn=f.toLowerCase()+'.'+l.toLowerCase()+'@'+dom,dn=f+' '+l;
+    const guid='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r2=Math.random()*16|0;return(c=='x'?r2:(r2&0x3|0x8)).toString(16);});
+    const isAct=Math.random()>.3,isChurn=!isAct&&Math.random()>.5;
+    const prm=isAct?Math.floor(Math.pow(Math.random(),1.4)*600)+1:0,days=isAct?Math.floor(Math.random()*25)+2:0;
+    const lastDA=isAct?(Math.random()<.65?Math.floor(Math.random()*14):Math.floor(Math.random()*30)+1):isChurn?Math.floor(Math.random()*30)+31:null;
+    const lastD=lastDA!==null?ago(lastDA):'',vivaOrg=orgsV[i%orgsV.length];
+    const a={};a[A.refreshDate]=agoDMY(0);a[A.upn]=upn;a[A.displayName]=dn;a[A.lastActivity]=lastD?agoDMY(lastDA||0):'';a[A.period]='30';a[A.promptsAll]=prm;a[A.promptsWork]=Math.floor(prm*.55);a[A.promptsWeb]=Math.floor(prm*.35);a[A.activeDays]=days;a[A.lastTeams]=isAct&&Math.random()>.2?agoDMY(Math.floor(Math.random()*28)):'';a[A.lastWord]=isAct&&Math.random()>.35?agoDMY(Math.floor(Math.random()*28)):'';a[A.lastExcel]=isAct&&Math.random()>.45?agoDMY(Math.floor(Math.random()*28)):'';a[A.lastPPT]=isAct&&Math.random()>.55?agoDMY(Math.floor(Math.random()*28)):'';a[A.lastOutlook]=isAct&&Math.random()>.25?agoDMY(Math.floor(Math.random()*28)):'';a[A.lastOneNote]=isAct&&Math.random()>.7?agoDMY(Math.floor(Math.random()*28)):'';aRows.push(a);
+    const dd2={};dd2[D.refreshDate]=agoDMY(0);dd2[D.guid]=guid;dd2[D.upn]=upn;dd2[D.displayName]=dn;dd2[D.period]='30';dd2[D.prompts]=prm;dd2[D.activeDays]=days;dd2[D.lastActivity]=lastD?agoDMY(lastDA||0):'';dd2[D.lastTeams]=a[A.lastTeams];dd2[D.lastWord]=a[A.lastWord];dd2[D.lastExcel]=a[A.lastExcel];dd2[D.lastPPT]=a[A.lastPPT];dd2[D.lastOutlook]=a[A.lastOutlook];dd2[D.lastOneNote]=a[A.lastOneNote];dRows.push(dd2);
+    const rr={};rr[R.refreshDate]=agoDMY(0);rr[R.upn]=upn;rr[R.hasLicence]='TRUE';rr[R.period]='30';rr[R.updateChan]=Math.random()>.18?'TRUE':'FALSE';rr[R.teamsMtg]=Math.random()>.12?'TRUE':'FALSE';rr[R.teamsChat]=Math.random()>.08?'TRUE':'FALSE';rr[R.outlookEmail]=Math.random()>.07?'TRUE':'FALSE';rr[R.officeDocs]=Math.random()>.1?'TRUE':'FALSE';rRows.push(rr);
+    const fullHash=await sha256(upn),t=fullHash.slice(0,32);const vivaId=`${t.slice(0,8)}-${t.slice(8,12)}-${t.slice(12,16)}-${t.slice(16,20)}-${t.slice(20,32)}`;
+    const vv={};vv[V.pid]=vivaId;vv[V.date]=agoDMY(0);vv[V.org]=vivaOrg;vv[V.totalAct]=isAct?Math.floor(prm*3.8)+Math.floor(Math.random()*25):0;vv[V.totalActiveDays]=days;vv[V.totalEnabledDays]=30;vv[V.daysTeams]=isAct?Math.floor(days*.85):0;vv[V.daysOutlook]=isAct?Math.floor(days*.78):0;vv[V.daysWord]=isAct?Math.floor(days*.55):0;vv[V.daysExcel]=isAct?Math.floor(days*.45):0;vv[V.daysPPT]=isAct?Math.floor(days*.35):0;vv[V.actTeams]=isAct?Math.floor(days*4.2):0;vv[V.actOutlook]=isAct?Math.floor(days*3.6):0;vv[V.actWord]=isAct?Math.floor(days*2.8):0;vv[V.actExcel]=isAct?Math.floor(days*2.1):0;vv[V.actPPT]=isAct?Math.floor(days*1.5):0;vv[V.actCopilotChatWork]=isAct?Math.floor(days*1.8):0;vv[V.actSumEmail]=isAct?Math.floor(days*2.4):0;vv[V.actRecap]=isAct?Math.floor(days*1.7):0;vv[V.actDraftWord]=isAct?Math.floor(days*1.9):0;vv[V.actRewrite]=isAct?Math.floor(days*1.4):0;vv[V.actSumMtg]=isAct?Math.floor(days*1.5):0;vv[V.actXlAnalysis]=isAct?Math.floor(days*1.1):0;vv[V.actCreatePPT]=isAct?Math.floor(days*.85):0;vv[V.actSumChat]=isAct?Math.floor(days*2.0):0;vv[V.actEmailCoach]=isAct?Math.floor(days*.75):0;vv[V.actXlFormula]=isAct?Math.floor(days*.55):0;vv[V.actGenEmail]=isAct?Math.floor(days*1.1):0;vv[V.actComposeTeams]=isAct?Math.floor(days*1.3):0;vv[V.actSumPPT]=isAct?Math.floor(days*.65):0;vv[V.actSumWord]=isAct?Math.floor(days*.85):0;vv[V.actXlFormat]=isAct?Math.floor(days*.45):0;vv[V.actAddPPT]=isAct?Math.floor(days*.38):0;vv[V.actVizTable]=isAct?Math.floor(days*.28):0;vv[V.mtgHrsRecap]=isAct?+(Math.random()*10).toFixed(1):0;vv[V.mtgHrsSum]=isAct?+(Math.random()*7).toFixed(1):0;vv[V.mtgRecapCnt]=isAct?Math.floor(Math.random()*7):0;vv[V.chatEnabledDays]=isAct?Math.floor(days*.9):0;vv[V.enabledTeams]=isAct?Math.floor(days*.88):0;vv[V.enabledProd]=isAct?Math.floor(days*.82):0;vv[V.enabledSearch]=isAct?Math.floor(days*.62):0;vv[V.enabledPowerPlatform]=isAct?Math.floor(days*.28):0;vv[V.ret28]=isAct&&Math.random()>.28?'1':'0';vv[V.retChat28]=isAct&&Math.random()>.33?'1':'0';vv[V.ret7]=isAct&&Math.random()>.38?'1':'0';vv[V.retChat7]=isAct&&Math.random()>.43?'1':'0';vv[V.weeksM365]=isAct?String(Math.min(4,Math.floor(Math.random()*5))):'0';vv[V.weeksChat]=isAct?String(Math.min(4,Math.floor(Math.random()*5))):'0';vv[V.promptsWork]=Math.floor(prm*.55);vv[V.promptsWeb]=Math.floor(prm*.35);vRows.push(vv);
+  }
+  FILES.active=aRows;FILES.detail=dRows;FILES.ready=rRows;FILES.viva=vRows;
+  ['active','detail','ready','viva'].forEach((k,idx)=>markSlot(k,'sample-'+k+'.csv',[aRows.length,dRows.length,rRows.length,vRows.length][idx]));
+  // Generate sample VIP list
+  VIP_LIST=[
+    {no:'1',name:'James Smith',email:'james.smith@easyjet.com',role:'Chief Executive Officer',group:'Technology',comments:'L50'},
+    {no:'2',name:'Sarah Patel',role:'Director of Finance',group:'Finance',comments:'L40'},
+    {no:'3',name:'Omar Khan',role:'Head of Operations',group:'Operations',comments:'L40'},
+    {no:'4',name:'Lisa Williams',role:'Chief Commercial Officer',group:'Commercial',comments:'L50'},
+    {no:'5',name:'Chen Zhang',role:'Head of Engineering',group:'Technology',comments:'L40'},
+    {no:'6',name:'David Brown',role:'Director of HR',group:'HR & People',comments:'L40'},
+    {no:'7',name:'Anna Mueller',role:'Legal Director',group:'Legal',comments:'L40'},
+    {no:'8',name:'Tom Costa',role:'Head of Safety',group:'Safety & Compliance',comments:'L30'},
+    {no:'9',name:'Zoe Ahmed',role:'Head of Revenue',group:'Trading and Revenue Management',comments:'L40'},
+    {no:'10',name:'Mark Taylor',role:'VP Commercial',group:'Commercial',comments:'L40'},
+    {no:'11',name:'Emma Lee',role:'Director of Finance Ops',group:'Finance',comments:'L30'},
+    {no:'12',name:'Paul Martin',role:'Head of Customer Ops',group:'Operations',comments:'L30'},
+    {no:'13',name:'Tim Langridge',role:'Senior Manager',group:'Technology',comments:'L30'},
+    {no:'14',name:'Laura Magill',role:'Head of Investor Relations',group:'Finance',comments:'L30'},
+    {no:'15',name:'Jiten Patel',role:'Product Director',group:'Technology',comments:'L40'},
+  ];
+  FILES.vip=VIP_LIST;
+  markSlot('vip','sample-vip-list.csv',VIP_LIST.length);
+  const scS=document.getElementById('sb-vip-count');if(scS)scS.textContent=VIP_LIST.length;
+  const dotV=document.getElementById('dot-vip');if(dotV){dotV.className='sb-dot ok';dotV.style.background='var(--am2)';}
+  await buildDashboard();
+}
+
+// ============================================================
+// VIP LIST - State and Logic
+// ============================================================
+// VIP Excel/CSV columns: No. | Name | Role | Group / Department | Comments
+// Matched against MERGED users by Display Name (case-insensitive)
+// Falls back to checking if Name appears anywhere in the UPN local part
+
+let VIP_LIST = [];       // [{no, name, role, group, comments}]
+let VIP_MATCHED = [];    // [{vip: {...}, user: {...}|null}]
+let VIP_GROUP_FILTER = '';
+
+// ── VIP CSV/Excel parser ────────────────────────────────────
+function parseVipList(rows, headers) {
+  // Flexible column detection - handles No. | Name | Email | Role | Group/Department | Comments
+  function findCol(names) {
+    for (const name of names) {
+      const norm = name.toLowerCase().replace(/[^a-z0-9]/g,'');
+      const idx = headers.findIndex(h => h.toLowerCase().replace(/[^a-z0-9]/g,'').includes(norm));
+      if (idx >= 0) return headers[idx];
+    }
+    return null;
+  }
+  const colNo    = findCol(['no','num','number']) || headers[0];
+  const colName  = findCol(['name'])              || headers[1];
+  const colEmail = findCol(['email','mail','upn','address']);  // optional
+  const colRole  = findCol(['role','title','jobtitle','position']) || (colEmail ? headers[3] : headers[2]);
+  const colGrp   = findCol(['group','department','dept','team','division','org']) || (colEmail ? headers[4] : headers[3]);
+  const colCmt   = findCol(['comment','notes','note','grade','level','band']) || (colEmail ? headers[5] : headers[4]);
+
+  return rows
+    .filter(r => r[colName] && r[colName].trim() !== '' && r[colName].trim().toLowerCase() !== 'name')
+    .map(r => ({
+      no:       (r[colNo]    || '').trim(),
+      name:     (r[colName]  || '').trim(),
+      email:    (colEmail ? (r[colEmail] || '') : '').trim().toLowerCase(),
+      role:     (r[colRole]  || '').trim(),
+      group:    (r[colGrp]   || '').trim(),
+      comments: (r[colCmt]   || '').trim(),
+    }))
+    .filter(v => v.name);
+}
+
+// ── Match VIP names to MERGED users ────────────────────────
+function matchVipToUsers() {
+  let emailHits=0,nameHits=0,fuzzyHits=0,upnHits=0;
+
+  VIP_MATCHED = VIP_LIST.map(vip => {
+    const nameLower  = vip.name.toLowerCase().trim();
+    // Clean name: strip titles, suffixes, extra spaces
+    const nameClean  = nameLower
+      .replace(/^(mr|mrs|ms|dr|prof|sir)\.?\s+/,'')
+      .replace(/\s+(jr|sr|ii|iii|iv)\.?$/,'')
+      .trim();
+    const emailLower = (vip.email || '').toLowerCase().trim();
+    let user = null;
+
+    // Strategy 1: Email/UPN exact match - most reliable
+    if (emailLower) {
+      user = MERGED.find(u => u.upn.toLowerCase() === emailLower);
+      // Also try: email matches the UPN without domain suffix variations
+      if (!user) {
+        const emailLocal = emailLower.split('@')[0];
+        user = MERGED.find(u => u.upn.toLowerCase().startsWith(emailLocal+'@'));
+      }
+      if (user) { emailHits++; return { vip, user, matchMethod: 'email' }; }
+    }
+
+    // Strategy 2: Exact Display Name match
+    user = MERGED.find(u => u.displayName.toLowerCase().trim() === nameClean);
+    if (user) { nameHits++; return { vip, user, matchMethod: 'exact-name' }; }
+
+    // Strategy 3: Display Name contains all name parts (handles "Firstname Surname" vs "Firstname M. Surname")
+    const nameParts = nameClean.split(/\s+/).filter(p => p.length > 1);
+    if (nameParts.length >= 2) {
+      user = MERGED.find(u => {
+        const dn = u.displayName.toLowerCase();
+        return nameParts.every(p => dn.includes(p));
+      });
+      if (user) { fuzzyHits++; return { vip, user, matchMethod: 'fuzzy-name' }; }
+    }
+
+    // Strategy 4: UPN local-part contains name parts (e.g. "Tim Langridge" -> "tim.langridge@easyjet.com")
+    if (nameParts.length >= 2) {
+      user = MERGED.find(u => {
+        const local = u.upn.toLowerCase().split('@')[0];
+        return nameParts.every(p => local.includes(p));
+      });
+      if (user) { upnHits++; return { vip, user, matchMethod: 'upn-name' }; }
+    }
+
+    return { vip, user: null, matchMethod: 'unmatched' };
+  });
+
+  const total = VIP_LIST.length;
+  const matched = VIP_MATCHED.filter(v=>v.user).length;
+  console.log(`VIP match: ${matched}/${total} | email:${emailHits} exactName:${nameHits} fuzzy:${fuzzyHits} upn:${upnHits} unmatched:${total-matched}`);
+
+  // Show match diagnostics on page
+  const diagEl = document.getElementById('vip-match-diag');
+  if (diagEl) {
+    if (matched === 0 && total > 0) {
+      diagEl.innerHTML = `<div style="background:var(--rd3);border:1px solid var(--rd2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--rd2)">
+        <strong>&#9888; No users matched.</strong> Check that: (1) the Email column contains the same UPN used in the Admin Centre reports (e.g. <code style="font-family:var(--mono);font-size:10px">Tim.Langridge@easyjet.com</code>),
+        (2) the Admin Centre data is loaded, (3) the Name column is not blank. Open browser console (F12) for detail.
+      </div>`;
+    } else if (matched < total) {
+      diagEl.innerHTML = `<div style="background:var(--am3);border:1px solid var(--am2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--am)">
+        <strong>&#9888; ${total-matched} VIP user(s) not matched.</strong> Unmatched users are shown in the table below. Check email addresses match the Admin Centre UPN exactly.
+      </div>`;
+    } else {
+      diagEl.innerHTML = `<div style="background:var(--gn3);border:1px solid var(--gn2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--gn)">
+        <strong>&#10003; All ${total} VIP users matched</strong> to Copilot data successfully.
+      </div>`;
+    }
+  }
+}
+
+// ── Render VIP page ─────────────────────────────────────────
+function renderVip() {
+  const empty   = document.getElementById('vip-empty');
+  const content = document.getElementById('vip-content');
+  if (!VIP_LIST.length) {
+    if (empty)   empty.style.display   = 'block';
+    if (content) content.style.display = 'none';
+    return;
+  }
+  if (empty)   empty.style.display   = 'none';
+  if (content) content.style.display = 'block';
+
+  matchVipToUsers();
+
+  const all       = VIP_MATCHED;
+  const matched   = all.filter(v => v.user);
+  const unmatched = all.filter(v => !v.user);
+
+  // Apply group filter
+  const filtered = VIP_GROUP_FILTER
+    ? all.filter(v => v.vip.group === VIP_GROUP_FILTER)
+    : all;
+  const fMatched = filtered.filter(v => v.user);
+
+  // KPIs
+  const total      = filtered.length || 1;
+  const active     = fMatched.filter(v => v.user.status === 'active').length;
+  const totalProm  = fMatched.reduce((s, v) => s + v.user.prompts, 0);
+  const totalVAct  = fMatched.reduce((s, v) => s + v.user.vivaAct, 0);
+  const avgProm    = fMatched.length ? Math.round(totalProm / fMatched.length) : 0;
+
+  setV('vip-n',         VIP_LIST.length);
+  setV('vip-matched-n', matched.length);
+  setV('vip-active',    active);
+  setV('vip-prompts',   fmt(totalProm));
+  setV('vip-avg',       avgProm);
+  setV('vip-vact',      VIVA_LOADED ? fmt(totalVAct) : '-');
+
+  // Licence recs
+  const lrActive = fMatched.filter(v => v.user.prompts >= 10 && v.user.status !== 'never').length;
+  const lrLow    = fMatched.filter(v => v.user.prompts > 0 && v.user.prompts < 10).length;
+  const lrNone   = filtered.filter(v => !v.user || v.user.prompts === 0).length;
+  setV('lr-active', lrActive);
+  setV('lr-low',    lrLow);
+  setV('lr-none',   lrNone);
+
+  // Group tabs
+  const groups = [...new Set(VIP_LIST.map(v => v.group).filter(Boolean))].sort();
+  const tabContainer = document.getElementById('vip-group-tabs');
+  if (tabContainer) {
+    tabContainer.innerHTML = groups.map(g => {
+      const isActive = g === VIP_GROUP_FILTER;
+      return `<button class="fsel" onclick="filterVipGroup('${g.replace(/'/g,"\\'")})"
+        style="cursor:pointer${isActive ? ';font-weight:700;background:var(--am3);border-color:var(--am2);color:var(--am)' : ''}">${g}</button>`;
+    }).join('');
+  }
+  const allBtn = document.getElementById('vip-grp-all');
+  if (allBtn) {
+    allBtn.style.background   = !VIP_GROUP_FILTER ? 'var(--am3)' : 'var(--s0)';
+    allBtn.style.borderColor  = !VIP_GROUP_FILTER ? 'var(--am2)' : 'var(--b2)';
+    allBtn.style.color        = !VIP_GROUP_FILTER ? 'var(--am)'  : 'var(--mu)';
+    allBtn.style.fontWeight   = !VIP_GROUP_FILTER ? '700'        : '500';
+  }
+
+  // User table
+  const overallAvg = MERGED.length ? Math.round(MERGED.reduce((s,u)=>s+u.prompts,0)/MERGED.length) : 0;
+  function licRec(v) {
+    if (!v.user) return '<span style="color:var(--rd2);font-weight:600;font-size:10px">&#128273; Assign licence</span>';
+    const p = v.user.prompts;
+    if (p >= 10) return '<span style="color:var(--gn);font-weight:600;font-size:10px">&#10003; Keep</span>';
+    if (p > 0)   return '<span style="color:var(--am);font-weight:600;font-size:10px">&#9888; Onboard</span>';
+    return '<span style="color:var(--rd2);font-weight:600;font-size:10px">&#10007; Not using</span>';
+  }
+
+  const sortedFiltered = [...filtered].sort((a, b) => (b.user ? b.user.prompts : 0) - (a.user ? a.user.prompts : 0));
+  setH('vip-body', sortedFiltered.map(v => {
+    const u = v.user;
+    const crown = v.user && v.user.isChampion ? ' <span class="vip-crown">&#127942;</span>' : '';
+    return `<tr>
+      <td class="mc">${v.vip.no}</td>
+      <td><div class="dn-c">${v.vip.name}${crown}</div><div style="font-family:var(--mono);font-size:9px;color:var(--mu2);margin-top:2px">${v.matchMethod==='email'?'<span style=color:var(--gn)>&#10003; email</span>':v.matchMethod==='unmatched'?'<span style=color:var(--rd2)>&#10007; not found</span>':'<span style=color:var(--am)>~ name match</span>'}</div></td>
+      <td class="upn-c" title="${v.user ? v.user.upn : v.vip.email}">${v.user ? v.user.upn : (v.vip.email || '<span style=color:var(--rd2)>no email</span>')}</td>
+      <td style="font-size:11px;color:var(--mu);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.vip.role}">${v.vip.role}</td>
+      <td><span class="vip-group-tag">${v.vip.group}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--mu)">${v.vip.comments}</td>
+      <td>${u ? sBadge(u) : '<span class="badge b-never">Not found</span>'}</td>
+      <td class="mc" style="font-weight:${u && u.prompts > 0 ? '700' : '400'}">${u ? u.prompts : '-'}</td>
+      <td class="mc">${u ? u.activeDays : '-'}</td>
+      <td>${u ? laPill(u.lastActivity) : '<span class="la la-none">-</span>'}</td>
+      <td>${u ? laPill(u.lastTeams)   : '<span class="la la-none">-</span>'}</td>
+      <td>${u ? laPill(u.lastOutlook) : '<span class="la la-none">-</span>'}</td>
+      <td>${u ? laPill(u.lastWord)    : '<span class="la la-none">-</span>'}</td>
+      <td>${u ? laPill(u.lastExcel)   : '<span class="la la-none">-</span>'}</td>
+      <td class="mc">${u ? (u.vivaAct || '-') : '-'}</td>
+      <td>${licRec(v)}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="15" colspan="16" style="text-align:center;padding:16px;color:var(--mu)">No VIP users in this group</td></tr>');
+
+  // Status breakdown bars
+  const statBars = [
+    { label: 'Active (30d)',    val: fMatched.filter(v => v.user.status === 'active').length },
+    { label: 'Churned (60d)',   val: fMatched.filter(v => v.user.status === 'churned').length },
+    { label: 'Lost (60d+)',     val: fMatched.filter(v => v.user.status === 'lost').length },
+    { label: 'Never active',    val: fMatched.filter(v => v.user.status === 'never').length },
+    { label: 'Not in system',   val: filtered.filter(v => !v.user).length },
+  ];
+  setH('vip-status-bars', barH(statBars, 'var(--am2)', 'w'));
+
+  // Prompt distribution
+  const promBars = [
+    { label: '0 prompts',  val: filtered.filter(v => !v.user || v.user.prompts === 0).length },
+    { label: '1-9',        val: fMatched.filter(v => v.user.prompts >= 1 && v.user.prompts < 10).length },
+    { label: '10-49',      val: fMatched.filter(v => v.user.prompts >= 10 && v.user.prompts < 50).length },
+    { label: '50-99',      val: fMatched.filter(v => v.user.prompts >= 50 && v.user.prompts < 100).length },
+    { label: '100+',       val: fMatched.filter(v => v.user.prompts >= 100).length },
+  ];
+  setH('vip-prom-bars', barH(promBars, 'var(--bl)', 'xs'));
+
+  // Group bars (active VIPs per group)
+  const grpMap = {};
+  all.forEach(v => {
+    const g = v.vip.group || 'Unassigned';
+    if (!grpMap[g]) grpMap[g] = 0;
+    if (v.user && v.user.status === 'active') grpMap[g]++;
+  });
+  const grpBars = Object.entries(grpMap).map(([k,v])=>({label:k,val:v})).sort((a,b)=>b.val-a.val);
+  setH('vip-group-bars', barH(grpBars, 'var(--am2)'));
+
+  // Comparison: VIP vs overall
+  const vipAvgProm   = fMatched.length ? Math.round(fMatched.reduce((s,v)=>s+v.user.prompts,0)/fMatched.length) : 0;
+  const allAvgProm   = MERGED.filter(u=>u.status==='active').length ? Math.round(MERGED.reduce((s,u)=>s+u.prompts,0)/MERGED.filter(u=>u.status==='active').length) : 0;
+  const vipAdoptPct  = Math.round(active/filtered.length*100);
+  const allAdoptPct  = MERGED.length ? Math.round(MERGED.filter(u=>u.status==='active').length/MERGED.length*100) : 0;
+  const compareBars = [
+    { label: 'VIP avg prompts',   val: vipAvgProm },
+    { label: 'Overall avg prompts', val: allAvgProm },
+    { label: 'VIP adoption %',    val: vipAdoptPct },
+    { label: 'Overall adoption %', val: allAdoptPct },
+  ];
+  setH('vip-compare-bars', barH(compareBars, 'linear-gradient(90deg,var(--am2),var(--am))'));
+
+  // Unmatched table
+  setH('vip-unmatched-body', unmatched.map(v => `<tr>
+    <td class="mc">${v.vip.no}</td>
+    <td class="dn-c">${v.vip.name}</td>
+    <td style="font-size:11px;color:var(--mu)">${v.vip.role}</td>
+    <td><span class="vip-group-tag">${v.vip.group}</span></td>
+    <td style="font-family:var(--mono);font-size:10px;color:var(--mu)">${v.vip.comments}</td>
+    <td style="font-size:11px;color:var(--rd2)">Check name spelling or assign Copilot licence</td>
+  </tr>`).join('') || '<tr><td colspan="6" colspan="6" style="text-align:center;padding:14px;color:var(--mu)">All VIP users found in Copilot data</td></tr>');
+}
+
+function filterVipGroup(group) {
+  VIP_GROUP_FILTER = group;
+  renderVip();
+}
+
+</script></body></html>
