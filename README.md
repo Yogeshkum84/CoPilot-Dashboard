@@ -179,14 +179,14 @@ Contributions are welcome. If you work in a M365 / Digital Workplace environment
 
 I built this tool out of necessity — the native M365 reporting is powerful but fragmented across three different portals, and getting a clear picture of *who* is using Copilot, *how* they're using it, and *who needs intervention* required too many manual steps. This dashboard brings it all together in one offline file that any adoption manager or IT lead can run without needing Power BI, Azure, or admin rights beyond report export access.
 
-My background is in Digital Workplace delivery and IT service management in the Travel, Transport and Hospitality domain. I manage large-scale M365 environments and EUC programmes, and I build self-contained tooling that packages domain expertise into reusable, practical deliverables — this is one of them.
+My background is in Digital Workplace delivery and IT service management in the Travel domain. I manage large-scale M365 environments and EUC programmes, and I build self-contained tooling that packages domain expertise into reusable, practical deliverables — this is one of them.
 
 **Find me:**
 
 | Platform | Link |
 |---|---|
 | GitHub | [@Yogeshkum84](https://github.com/Yogeshkum84) |
-| LinkedIn | [linkedin.com/in/yogesh-kumar-itil](https://www.linkedin.com/in/yogesh-kumar-itil) |
+| LinkedIn | [linkedin.com/in/yogesh-kumar-itil](www.linkedin.com/in/yogesh-kumar-41933124) |
 | Email | Available via GitHub profile |
 
 ---
@@ -200,6 +200,8 @@ This tool is free, open source, and built in personal time. If it saves your tea
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20this%20project-f59e0b?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/yogeshkum84)
 
 [![GitHub Sponsor](https://img.shields.io/badge/GitHub%20Sponsors-Sponsor%20on%20GitHub-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Yogeshkum84)
+<img width="247" height="241" alt="image" src="https://github.com/user-attachments/assets/a4e89ac1-41e7-4c31-95f4-95c88c654d11" />
+
 
 *Every contribution helps fund time for new features, bug fixes, and keeping the column maps updated as Microsoft releases new export formats.*
 
