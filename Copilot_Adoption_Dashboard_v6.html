@@ -1170,7 +1170,7 @@ function resetDash(){
 async function loadSample(){
   const btn=document.getElementById('btn-load');btn.disabled=true;btn.textContent='Generating...';
   const orgsV=['Trading and Revenue Management','Technology','Operations','Finance','HR & People','Commercial','Safety & Compliance','Legal'];
-  const doms=['YourCompany.com','ops.YourCompany.com'];
+  const doms=['contoso.com','contoso.com','contoso.com','fabrikam.com','corp.contoso.com'];
   const fn=['James','Sarah','Priya','Omar','Lisa','Chen','David','Anna','Tom','Zoe','Mark','Emma','Paul','Nina','Alex','Raj','Sophie','Mike','Claire','Ben','Tim','Laura','Michael','Jiten','Leah'];
   const ln=['Smith','Patel','Johnson','Khan','Williams','Zhang','Brown','Mueller','Costa','Ahmed','Taylor','Lee','Martin','Wilson','Garcia','Sharma','Jones','Clark','Hall','White','Langridge','Magill','Proctor','Hazelden','Cook'];
   const now=new Date();
@@ -1194,22 +1194,25 @@ async function loadSample(){
   FILES.active=aRows;FILES.detail=dRows;FILES.ready=rRows;FILES.viva=vRows;
   ['active','detail','ready','viva'].forEach((k,idx)=>markSlot(k,'sample-'+k+'.csv',[aRows.length,dRows.length,rRows.length,vRows.length][idx]));
   // Generate sample VIP list
+  // Sample VIP list - uses generic placeholder names/emails matching the sample data
+  // Replace with your real VIP list by uploading an Excel or CSV file on the upload screen
+  const sampleDom=doms[0]; // uses the first sample domain (e.g. contoso.com)
   VIP_LIST=[
-    {no:'1',name:'James Smith',email:'james.smith@YourCompany.com',role:'Chief Executive Officer',group:'Technology',comments:'L50'},
-    {no:'2',name:'Sarah Patel',role:'Director of Finance',group:'Finance',comments:'L40'},
-    {no:'3',name:'Omar Khan',role:'Head of Operations',group:'Operations',comments:'L40'},
-    {no:'4',name:'Lisa Williams',role:'Chief Commercial Officer',group:'Commercial',comments:'L50'},
-    {no:'5',name:'Chen Zhang',role:'Head of Engineering',group:'Technology',comments:'L40'},
-    {no:'6',name:'David Brown',role:'Director of HR',group:'HR & People',comments:'L40'},
-    {no:'7',name:'Anna Mueller',role:'Legal Director',group:'Legal',comments:'L40'},
-    {no:'8',name:'Tom Costa',role:'Head of Safety',group:'Safety & Compliance',comments:'L30'},
-    {no:'9',name:'Zoe Ahmed',role:'Head of Revenue',group:'Trading and Revenue Management',comments:'L40'},
-    {no:'10',name:'Mark Taylor',role:'VP Commercial',group:'Commercial',comments:'L40'},
-    {no:'11',name:'Emma Lee',role:'Director of Finance Ops',group:'Finance',comments:'L30'},
-    {no:'12',name:'Paul Martin',role:'Head of Customer Ops',group:'Operations',comments:'L30'},
-    {no:'13',name:'Tim Langridge',role:'Senior Manager',group:'Technology',comments:'L30'},
-    {no:'14',name:'Laura Magill',role:'Head of Investor Relations',group:'Finance',comments:'L30'},
-    {no:'15',name:'Jiten Patel',role:'Product Director',group:'Technology',comments:'L40'},
+    {no:'1', name:'James Smith',   email:'james.smith@'+sampleDom,   role:'Chief Executive Officer',        group:'Technology',                   comments:'L50'},
+    {no:'2', name:'Sarah Patel',   email:'sarah.patel@'+sampleDom,   role:'Chief People Officer',           group:'HR & People',                  comments:'L50'},
+    {no:'3', name:'Omar Khan',     email:'omar.khan@'+sampleDom,     role:'Head of Operations',             group:'Operations',                   comments:'L40'},
+    {no:'4', name:'Lisa Williams', email:'lisa.williams@'+sampleDom, role:'Chief Commercial Officer',       group:'Commercial',                   comments:'L50'},
+    {no:'5', name:'Chen Zhang',    email:'chen.zhang@'+sampleDom,    role:'Head of Engineering',            group:'Technology',                   comments:'L40'},
+    {no:'6', name:'David Brown',   email:'david.brown@'+sampleDom,   role:'Director of HR',                 group:'HR & People',                  comments:'L40'},
+    {no:'7', name:'Anna Mueller',  email:'anna.mueller@'+sampleDom,  role:'Legal Director',                 group:'Legal',                        comments:'L40'},
+    {no:'8', name:'Tom Costa',     email:'tom.costa@'+sampleDom,     role:'Head of Safety',                 group:'Safety & Compliance',          comments:'L30'},
+    {no:'9', name:'Zoe Ahmed',     email:'zoe.ahmed@'+sampleDom,     role:'Head of Revenue',                group:'Operations',                   comments:'L40'},
+    {no:'10',name:'Mark Taylor',   email:'mark.taylor@'+sampleDom,   role:'VP Commercial',                  group:'Commercial',                   comments:'L40'},
+    {no:'11',name:'Emma Lee',      email:'emma.lee@'+sampleDom,      role:'Director of Finance Operations', group:'Finance',                      comments:'L30'},
+    {no:'12',name:'Paul Martin',   email:'paul.martin@'+sampleDom,   role:'Head of Customer Operations',    group:'Operations',                   comments:'L30'},
+    {no:'13',name:'Alex Garcia',   email:'alex.garcia@'+sampleDom,   role:'Senior Programme Manager',       group:'Technology',                   comments:'L30'},
+    {no:'14',name:'Sophie Jones',  email:'sophie.jones@'+sampleDom,  role:'Head of Investor Relations',     group:'Finance',                      comments:'L30'},
+    {no:'15',name:'Raj Sharma',    email:'raj.sharma@'+sampleDom,    role:'Product Director',               group:'Technology',                   comments:'L40'},
   ];
   FILES.vip=VIP_LIST;
   markSlot('vip','sample-vip-list.csv',VIP_LIST.length);
@@ -1299,7 +1302,7 @@ function matchVipToUsers() {
       if (user) { fuzzyHits++; return { vip, user, matchMethod: 'fuzzy-name' }; }
     }
 
-    // Strategy 4: UPN local-part contains name parts (e.g. "Tim C" -> "tim.C@YourCompany.com")
+    // Strategy 4: UPN local-part contains name parts (e.g. "Alex Garcia" -> "alex.garcia@contoso.com")
     if (nameParts.length >= 2) {
       user = MERGED.find(u => {
         const local = u.upn.toLowerCase().split('@')[0];
@@ -1320,7 +1323,7 @@ function matchVipToUsers() {
   if (diagEl) {
     if (matched === 0 && total > 0) {
       diagEl.innerHTML = `<div style="background:var(--rd3);border:1px solid var(--rd2);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--rd2)">
-        <strong>&#9888; No users matched.</strong> Check that: (1) the Email column contains the same UPN used in the Admin Centre reports (e.g. <code style="font-family:var(--mono);font-size:10px">Tim.C@YourCompany.com</code>),
+        <strong>&#9888; No users matched.</strong> Check that: (1) the Email column contains the same UPN used in the Admin Centre reports (e.g. <code style="font-family:var(--mono);font-size:10px">Alex.Garcia@contoso.com</code>),
         (2) the Admin Centre data is loaded, (3) the Name column is not blank. Open browser console (F12) for detail.
       </div>`;
     } else if (matched < total) {
