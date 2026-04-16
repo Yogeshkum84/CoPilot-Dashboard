@@ -272,6 +272,34 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--fon
 .lrec-s{font-size:9px;color:var(--mu2);margin-top:3px;line-height:1.4}
 .lrec-recommend{font-size:10px;font-weight:700;margin-top:5px}
 .lrec-yes{color:var(--gn)}.lrec-no{color:var(--rd2)}.lrec-maybe{color:var(--am)}
+
+/* DEVELOPER CARD - upload screen */
+.dev-card{margin-top:20px;padding:14px 18px;background:var(--s0);border:1px solid var(--b1);border-radius:var(--rl);box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
+.yk-logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0f6cbd 0%,#7b2fbe 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(15,108,189,.3);position:relative;overflow:hidden}
+.yk-logo::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,rgba(255,255,255,.12) 0%,transparent 60%)}
+.yk-text{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;position:relative;z-index:1}
+.dev-info{flex:1;min-width:0}
+.dev-name{font-size:13px;font-weight:800;color:var(--tx);letter-spacing:-.01em;margin-bottom:1px}
+.dev-role{font-size:10px;color:var(--mu);line-height:1.5;margin-bottom:4px}
+.dev-links{display:flex;gap:8px;flex-wrap:wrap}
+.dev-link{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--bl);text-decoration:none;padding:2px 8px;border:1px solid var(--bl3);border-radius:20px;background:var(--bl3);transition:all .15s;white-space:nowrap}
+.dev-link:hover{background:var(--bl);color:#fff;border-color:var(--bl)}
+.dev-link.gh{color:var(--tx);background:var(--s2);border-color:var(--b2)}
+.dev-link.gh:hover{background:var(--tx);color:var(--s0)}
+.dev-link.bmc{color:#a16207;background:var(--am3);border-color:rgba(232,160,0,.3)}
+.dev-link.bmc:hover{background:var(--am2);color:#fff;border-color:var(--am2)}
+.dev-sep{color:var(--b2);font-size:10px}
+/* SIDEBAR footer developer block */
+.sb-dev{border-top:1px solid var(--b1);padding:10px 15px 12px;flex-shrink:0}
+.sb-dev-logo{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.yk-logo-sm{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#0f6cbd,#7b2fbe);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 4px rgba(15,108,189,.25)}
+.yk-text-sm{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.sb-dev-name{font-size:11px;font-weight:700;color:var(--tx)}
+.sb-dev-role{font-size:9px;color:var(--mu);line-height:1.5;margin-bottom:5px}
+.sb-dev-links{display:flex;flex-direction:column;gap:3px}
+.sb-dev-link{font-size:9.5px;color:var(--bl);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .12s}
+.sb-dev-link:hover{color:var(--vi2)}
+.sb-dev-link svg{flex-shrink:0}
 </style>
 </head>
 <body>
@@ -328,6 +356,29 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--fon
   </div>
   <div id="up-err"></div>
   <div class="up-note">All processing is local &mdash; no data leaves your browser. Supports tab-delimited and comma-delimited CSV with BOM.</div>
+  <div class="dev-card">
+    <div class="yk-logo"><span class="yk-text">YK</span></div>
+    <div class="dev-info">
+      <div class="dev-name">Yogesh Kumar</div>
+      <div class="dev-role">Digital Workplace &amp; IT Service Delivery Manager &middot; M365 &middot; ITSM &middot; EUC &middot; UK</div>
+      <div class="dev-links">
+        <a class="dev-link gh" href="https://github.com/Yogeshkum84/CoPilot-Dashboard" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+        <a class="dev-link" href="https://www.linkedin.com/in/yogesh-kumar-41933124" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a class="dev-link bmc" href="https://monzo.me/yogeshkumar36?h=_Ye7K0" target="_blank">
+          &#9749; Buy me a coffee
+        </a>
+      </div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--mu2);line-height:1.8">v6.0 &middot; MIT Licence<br/>github.com/<br/>Yogeshkum84</div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -368,6 +419,26 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--fon
     <div class="sb-foot">
       <span id="sb-meta">-</span><br/>Refresh: <span id="sb-refresh">-</span><br/>Period: <span id="sb-period">-</span><br/>
       <a onclick="resetDash()">&#8617; Load new files</a>
+    </div>
+    <div class="sb-dev">
+      <div class="sb-dev-logo">
+        <div class="yk-logo-sm"><span class="yk-text-sm">YK</span></div>
+        <div class="sb-dev-name">Yogesh Kumar</div>
+      </div>
+      <div class="sb-dev-role">Digital Workplace &amp; ITSM &middot; UK<br/>M365 &middot; EUC &middot; ServiceNow &middot; Nexthink</div>
+      <div class="sb-dev-links">
+        <a class="sb-dev-link" href="https://github.com/Yogeshkum84/CoPilot-Dashboard" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+          Yogeshkum84/CoPilot-Dashboard
+        </a>
+        <a class="sb-dev-link" href="https://www.linkedin.com/in/yogesh-kumar-itil" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn Profile
+        </a>
+        <a class="sb-dev-link" href="https://www.buymeacoffee.com/yogeshkum84" target="_blank">
+          &#9749; Buy me a coffee
+        </a>
+      </div>
     </div>
   </aside>
   <div class="main">
