@@ -190,11 +190,11 @@ Create an **Excel (.xlsx)** or **CSV (.csv)** file with the following columns:
 | Column | Required? | Description | Example |
 |---|---|---|---|
 | `No.` | Yes | Row number | `1` |
-| `Name` | Yes | Full name — must match the Display Name in M365 | `Adrian Talbot` |
-| `Email` | **Strongly recommended** | Full UPN from M365 Admin Centre | `Adrian.Talbot@easyjet.com` |
-| `Role` | Optional | Job title or role | `Director of Investor Relations` |
-| `Group / Department` | Optional | Team or department — used for group filtering | `Finance - Investor Relations` |
-| `Comments` | Optional | Any notes, grade, or band | `L50` |
+| `Name` | Yes | Full name — must match the Display Name in M365 | `Yogesh Kumar` |
+| `Email` | **Strongly recommended** | Full UPN from M365 Admin Centre | `Yogesh.Kumar@YourCompany.com` |
+| `Role` | Optional | Job title or role | `Director` |
+| `Group / Department` | Optional | Team or department — used for group filtering | `Finance` |
+| `Comments` | Optional | Any notes, grade, or band | `Grade 1` |
 
 ### Example
 
@@ -205,8 +205,8 @@ Create an **Excel (.xlsx)** or **CSV (.csv)** file with the following columns:
 
 ### Tips for accurate matching
 
-- **Use the Email column** — this is by far the most reliable way to match VIP users to Copilot data. The email must exactly match the UPN shown in the Admin Centre exports (e.g. `Tim.Langridge@easyjet.com`, not `tim.langridge@easyjet.com` — matching is case-insensitive so either works).
-- **Check Display Names** — if you don't have the email, the dashboard falls back to matching by Display Name. Make sure the name in your list exactly matches what appears in M365 (e.g. `Timothy Langridge` won't match `Tim Langridge`).
+- **Use the Email column** — this is by far the most reliable way to match VIP users to Copilot data. The email must exactly match the UPN shown in the Admin Centre exports (e.g. `Yogesh.Kumar@YourCompany.com`, not `Y.Kumar@YourCompany.com` — matching is case-insensitive so either works).
+- **Check Display Names** — if you don't have the email, the dashboard falls back to matching by Display Name. Make sure the name in your list exactly matches what appears in M365 (e.g. `Timothy C` won't match `Tim C`).
 - **Keep the header row** — the dashboard auto-detects column positions, but a clear header row helps.
 - **One sheet only** — if using Excel, keep all data on the first sheet.
 
