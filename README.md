@@ -63,7 +63,7 @@ No Power BI licence required. No Azure deployment. No API keys. No IT request. J
 - Fully offline — all processing in the browser, no data transmitted
 - Supports `.xlsx`, `.xls`, and `.csv` for the VIP list (SheetJS powered)
 - SHA-256 UUID-format hash matching for Viva Insights PersonId join (handles hashed tenants automatically)
-- DD/MM/YYYY date parsing for Viva MetricDate (easyJet / UK tenant format)
+- DD/MM/YYYY date parsing for Viva MetricDate (tenant format)
 - 4-strategy VIP name matching: email > exact name > fuzzy name parts > UPN local-part
 - Auto-detects file type from column headers — drop files in any order
 - Light theme UI — Plus Jakarta Sans + JetBrains Mono
@@ -117,7 +117,7 @@ No. | Name              | Email                        | Role                   
 Viva Insights anonymises user identities. The `PersonId` field is the first 128 bits of `SHA-256(UPN)` formatted as a UUID — for example:
 
 ```
-sha256("tim.langridge@easyjet.com")  →  5df66e7aa1c1ffea...
+sha256("tim.C@YourCompany.com")      →  5df66e7aa1c1ffea...
 First 32 hex chars                   →  5df66e7aa1c1ffea1db9fa34dd8a6a94
 UUID format                          →  5df66e7a-a1c1-ffea-1db9-fa34dd8a6a94
 ```
