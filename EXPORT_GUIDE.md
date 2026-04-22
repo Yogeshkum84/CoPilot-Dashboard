@@ -25,7 +25,7 @@
 | **Active User Report** | M365 Admin Centre | Recommended | Overview, User Directory, App Adoption, Prompts, Retention, Champions |
 | **User Details Report** | M365 Admin Centre | Optional | Viva join via User GUID; additional per-app last-activity dates |
 | **Readiness Report** | M365 Admin Centre | Optional | Readiness page — licence status, update channel, Teams/Outlook/Office signals |
-| **Viva Insights Export** | Viva Insights Admin | Optional | Copilot Actions, Product Heatmap, Meetings & Teams, deep org analytics |
+| **Viva Insights Export** | Viva Insights Admin | Optional | Co Actions, Product Heatmap, Meetings & Teams, deep org analytics |
 | **VIP User List** | Your own Excel/CSV | Optional | VIP Analysis page — named user consumption and licence planning |
 
 You can load any combination. The dashboard adapts to whatever is available.
@@ -181,7 +181,7 @@ Viva Insights provides 85 detailed Copilot metric columns that go well beyond wh
 
 ## 4. Prepare your VIP User List
 
-The VIP list is a named list of specific users — typically senior leaders, high-priority personas, or pilot cohorts — that you want to analyse separately and use for licence planning decisions.
+The VIP list is a named list of specific users — typically senior leaders, high-priority personas — that you want to analyse separately and use for licence planning decisions.
 
 ### File format
 
